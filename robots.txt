@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gembul-studio.vercel.app/sitemap.xml

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0b0a09">
+  <title>Transaksi &amp; Refund | GEMBUL Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0b0a09;--panel:#1a1713;--gold:#d4a86a;--text:#f5efe6;--muted:#a39a8c;--line:#342e26;--danger:#ffb5a8}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Poppins,system-ui,sans-serif}a{color:var(--gold);text-decoration:none}
+    header{display:flex;justify-content:space-between;align-items:center;padding:16px max(18px,calc((100vw - 1060px)/2));border-bottom:1px solid var(--line)}nav{display:flex;gap:14px;align-items:center;font-size:12px}
+    .brand,h1,h2{font-family:Syne,sans-serif}.brand{font-weight:800;letter-spacing:.18em}main{width:min(1060px,calc(100% - 28px));margin:28px auto 70px}
+    h1{font-size:clamp(28px,5vw,38px);margin:5px 0}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.18em}.panel{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel);margin:14px 0}
+    .toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.toolbar label{display:grid;gap:5px;color:var(--muted);font-size:12px;flex:1;min-width:170px}
+    input,button{font:inherit}input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text)}
+    .button{padding:9px 13px;border:1px solid #8a653d;border-radius:9px;background:#21190f;color:var(--gold);font-weight:600;cursor:pointer}.status{min-height:22px;color:var(--muted);font-size:13px}.error{color:var(--danger)!important}
+    .list{display:grid;gap:9px}.card{padding:13px;border:1px solid var(--line);border-radius:10px;background:#100e0c}.top{display:flex;justify-content:space-between;gap:12px}.card strong{display:block}.meta{color:var(--muted);font-size:12px;margin-top:4px}.details{margin-top:8px;color:var(--muted);font-size:12px}.refund-row{display:flex;gap:8px;margin-top:9px}.refund-row input{flex:1}.state{color:var(--gold)}[hidden]{display:none!important}
+    @media(max-width:600px){header{align-items:flex-start}nav{justify-content:flex-end;flex-wrap:wrap}.refund-row{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/">GEMBUL</a><nav><a href="/admin.html">Dashboard</a><a href="/pos.html">Kasir</a><a href="/finance.html">Keuangan</a><button class="button" id="logout" type="button">Keluar</button></nav></header>
+  <main><div class="eyebrow">RIWAYAT TRANSAKSI · REFUND PENUH SUPER ADMIN</div><h1>Transaksi</h1><p id="status" class="status" role="status" aria-live="polite">Memeriksa akses...</p>
+    <section id="history" hidden><div class="panel"><div class="toolbar"><label>Dari tanggal<input id="start" type="date"></label><label>Sampai tanggal<input id="end" type="date"></label><label>Cari nomor / pelanggan<input id="search" type="search" maxlength="80"></label><button class="button" id="load" type="button">Cari</button></div><p class="meta">Rentang maksimal 93 hari per permintaan. Refund selalu membatalkan seluruh transaksi; pembatalan stok dan stamp dilakukan server secara atomik.</p></div><div class="list" id="transactions"></div></section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/supabase-config.js"></script><script src="/admin-tools.js?v=2"></script>
+  <script>
+    (async function(){
+      const $=function(id){return document.getElementById(id)},status=$('status');let context;
+      function today(){return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Jakarta'}).format(new Date())}
+      function rangeStart(value){return new Date(value+'T00:00:00+07:00').toISOString()}
+      function rangeEnd(value){const date=new Date(value+'T00:00:00+07:00');date.setUTCDate(date.getUTCDate()+1);return date.toISOString()}
+      async function load(){
+        const start=$('start').value,end=$('end').value;if(!start||!end||end<start){window.GembulStaff.setStatus(status,'Pilih tanggal yang valid.',true);return}
+        try{
+          const rows=await window.GembulStaff.call(context.client,'admin_list_transactions',{p_start:rangeStart(start),p_end:rangeEnd(end),p_search:$('search').value.trim()||null,p_limit:100});
+          const target=$('transactions');target.replaceChildren();if(!rows.length)target.textContent='Tidak ada transaksi pada rentang ini.';
+          rows.forEach(function(transaction){
+            const card=document.createElement('article');card.className='card';const top=document.createElement('div');top.className='top';const identity=document.createElement('div');const title=document.createElement('strong');title.textContent=transaction.transaction_number+' · '+transaction.customer_name;const meta=document.createElement('div');meta.className='meta';meta.textContent=new Date(transaction.created_at).toLocaleString('id-ID',{timeZone:'Asia/Jakarta'})+' · '+(transaction.payment_method||'pembayaran')+' · '+window.GembulStaff.rupiah(transaction.total);identity.append(title,meta);const state=document.createElement('strong');state.className='state';state.textContent=transaction.status==='refunded'?'REFUND '+(transaction.refund_number||''):transaction.status;top.append(identity,state);card.append(top);
+            const details=document.createElement('button');details.type='button';details.className='button';details.textContent='Lihat item';details.style.marginTop='8px';const detailList=document.createElement('div');detailList.className='details';detailList.hidden=true;details.addEventListener('click',async function(){if(!detailList.hidden){detailList.hidden=true;return}try{const result=await context.client.from('transaction_items').select('description,quantity,unit_price').eq('transaction_id',transaction.id);if(result.error)throw result.error;detailList.textContent=(result.data||[]).map(function(item){return item.description+' × '+item.quantity+' · '+window.GembulStaff.rupiah(item.unit_price*item.quantity)}).join(' | ')||'Item tidak tersedia.';detailList.hidden=false}catch(error){detailList.textContent=error.message||'Rincian gagal dimuat.';detailList.hidden=false}});card.append(details,detailList);
+            if(context.role==='owner'&&transaction.status==='completed'){
+              const row=document.createElement('div');row.className='refund-row';const reason=document.createElement('input');reason.maxLength=500;reason.placeholder='Alasan refund (min. 5 karakter)';reason.setAttribute('aria-label','Alasan refund '+transaction.transaction_number);const button=document.createElement('button');button.type='button';button.className='button';button.textContent='Refund penuh';button.addEventListener('click',async function(){if(reason.value.trim().length<5){window.GembulStaff.setStatus(status,'Isi alasan refund minimal 5 karakter.',true);return}if(!window.confirm('Refund penuh '+transaction.transaction_number+' sebesar '+window.GembulStaff.rupiah(transaction.total)+'? Stok dan stamp akan dikembalikan.'))return;button.disabled=true;try{const result=await window.GembulStaff.call(context.client,'admin_refund_transaction',{p_transaction_id:transaction.id,p_reason:reason.value.trim()});window.GembulStaff.setStatus(status,'Refund berhasil: '+result.refund_number+'.',false);await load()}catch(error){button.disabled=false;window.GembulStaff.setStatus(status,error.message||'Refund gagal.',true)}});row.append(reason,button);card.append(row)
+            }
+            target.append(card)
+          });window.GembulStaff.setStatus(status,rows.length+' transaksi dimuat.',false)
+        }catch(error){window.GembulStaff.setStatus(status,error.message||'Riwayat transaksi gagal dimuat.',true)}
+      }
+      $('load').addEventListener('click',load);$('search').addEventListener('keydown',function(event){if(event.key==='Enter'){event.preventDefault();load()}});
+      $('logout').addEventListener('click',async function(){const result=await context.client.auth.signOut();if(result.error)window.GembulStaff.setStatus(status,result.error.message,true);else window.location.replace('/account.html')});
+      try{context=await window.GembulStaff.requireStaff(false);if(context){$('history').hidden=false;$('start').value=today();$('end').value=today();await load()}}catch(error){window.GembulStaff.setStatus(status,error.message||'Riwayat transaksi gagal dibuka.',true)}
+    })();
+  </script>
+</body>
+</html>

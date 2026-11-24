@@ -1,0 +1,26 @@
+{
+  "name": "gembul-studio",
+  "private": true,
+  "scripts": {
+    "serve": "npx --yes serve -l 4173 .",
+    "build:web": "node scripts/build-web.js",
+    "serve:web": "npx --yes serve -l 4173 dist",
+    "check": "node scripts/check-site.js",
+    "test:pwa": "node --test scripts/sw.test.js",
+    "test:mobile": "node --test scripts/mobile.test.js",
+    "test:business": "node --test scripts/business.test.js",
+    "mobile:build": "node scripts/build-mobile.js",
+    "mobile:sync": "npm run mobile:build && cap sync",
+    "mobile:open:android": "cap open android",
+    "mobile:open:ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.2",
+    "@capacitor/core": "8.6.2",
+    "@capacitor/ios": "8.6.2",
+    "@capacitor/splash-screen": "8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.2"
+  }
+}

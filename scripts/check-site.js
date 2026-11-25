@@ -29,6 +29,7 @@ const checks = {
   serviceWorkerRegistration: html.includes("navigator.serviceWorker.register('/sw.js')"),
   websiteInstallSection: html.includes('<section id="install"') && html.includes('Tambahkan ke Layar Utama'),
   websiteInstallPrompt: html.includes('id="pwa-install"') && html.includes("addEventListener('beforeinstallprompt'") && html.includes("addEventListener('appinstalled'"),
+  websiteInstallButtonsVisible: html.includes('id="install-hero"') && html.includes('id="install-dock"') && html.includes('class="install-cta" type="button">Pasang</button>'),
   websiteInstallNavigation: html.includes('href="#install">Unduh Aplikasi</a>'),
   viewport: html.includes('name="viewport"'),
   existingWhatsAppBooking: html.includes('6282142168938'),

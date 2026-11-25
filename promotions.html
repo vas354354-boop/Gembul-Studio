@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0b0a09">
+  <title>Promo &amp; Marketing | GEMBUL Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0b0a09;--panel:#1a1713;--gold:#d4a86a;--text:#f5efe6;--muted:#a39a8c;--line:#342e26;--danger:#ffb5a8}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Poppins,system-ui,sans-serif}a{color:var(--gold);text-decoration:none}
+    header{display:flex;justify-content:space-between;align-items:center;padding:16px max(18px,calc((100vw - 1060px)/2));border-bottom:1px solid var(--line)}nav{display:flex;gap:14px;align-items:center;font-size:12px}
+    .brand,h1,h2{font-family:Syne,sans-serif}.brand{font-weight:800;letter-spacing:.18em}main{width:min(1060px,calc(100% - 28px));margin:28px auto 70px}
+    h1{font-size:clamp(28px,5vw,38px);margin:5px 0}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.18em}.panel{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel);margin:14px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}.list{display:grid;gap:9px}.item{padding:12px;border:1px solid var(--line);border-radius:10px;background:#100e0c}.item strong{display:block}.item small{display:block;color:var(--muted);margin-top:5px}
+    label{display:grid;gap:5px;color:var(--muted);font-size:12px}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text)}textarea{min-height:90px}
+    .button{display:inline-block;padding:10px 14px;border:1px solid #8a653d;border-radius:9px;background:#21190f;color:var(--gold);font-weight:600;cursor:pointer}.status{min-height:22px;color:var(--muted);font-size:13px}.error{color:var(--danger)!important}.hint{color:var(--muted);font-size:12px}.recipients{display:grid;gap:8px;margin-top:12px}
+    [hidden]{display:none!important}@media(max-width:600px){header{align-items:flex-start}nav{justify-content:flex-end;flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/">GEMBUL</a><nav><a href="/admin.html">Dashboard</a><a href="/customers.html">Pelanggan</a><a href="/finance.html">Keuangan</a><button class="button" id="logout" type="button">Keluar</button></nav></header>
+  <main><div class="eyebrow">PROMOSI · MARKETING BERDASARKAN IZIN PELANGGAN</div><h1>Promo &amp; Marketing</h1><p id="status" class="status" role="status" aria-live="polite">Memeriksa akses...</p>
+    <section id="marketing" hidden>
+      <section class="panel"><h2>Buat voucher</h2><form id="promotion-form" class="grid">
+        <label>Kode voucher<input name="code" required minlength="3" maxlength="32" pattern="[A-Za-z0-9_-]+" placeholder="HEMAT10"></label><label>Nama promo<input name="name" required minlength="2" maxlength="100"></label><label>Jenis diskon<select name="type"><option value="percent">Persentase (%)</option><option value="fixed">Potongan rupiah</option></select></label><label>Nilai diskon<input name="value" type="number" min="1" step="1" required></label><label>Minimum transaksi (Rp)<input name="minimum" type="number" min="0" step="1" value="0" required></label><label>Kuota global (opsional)<input name="max_redemptions" type="number" min="1" step="1"></label><label>Batas per pelanggan<input name="per_customer_limit" type="number" min="1" step="1" value="1" required></label><label>Mulai (WIB)<input name="starts_at" type="datetime-local" required></label><label>Berakhir (WIB)<input name="ends_at" type="datetime-local" required></label><label>Syarat dan ketentuan<input name="terms" maxlength="1000"></label><button class="button" type="submit">Simpan voucher</button>
+      </form><p class="hint">Voucher divalidasi di server saat checkout, termasuk tanggal berlaku, minimum transaksi, kuota, dan batas per pelanggan.</p></section>
+      <section class="panel"><h2>Daftar voucher</h2><div class="list" id="promotions"></div></section>
+      <section class="panel"><h2>Siapkan kampanye WhatsApp</h2><form id="campaign-form" class="grid">
+        <label>Nama kampanye<input name="name" required minlength="2" maxlength="120"></label><label>Segment pelanggan<select name="segment"><option value="all">Semua yang mengizinkan promo</option><option value="new">Baru</option><option value="active">Aktif</option><option value="loyal">Loyal</option><option value="vip">VIP</option><option value="inactive">Tidak aktif</option><option value="lost">Hilang</option><option value="birthday">Ulang tahun hari ini</option></select></label><label style="grid-column:1/-1">Pesan<textarea name="message" required minlength="5" maxlength="1000" placeholder="Halo {nama}, kami punya promo khusus untukmu. Kode: {kode_member}."></textarea></label><button class="button" type="submit">Siapkan daftar penerima</button>
+      </form><p class="hint">Hanya pelanggan yang memberi izin marketing dan memiliki nomor WhatsApp yang disertakan. Tombol membuka percakapan satu per satu; pesan perlu ditinjau dan dikirim manual. Aplikasi tidak mengirim pesan otomatis.</p><div id="campaign-result"></div></section>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/supabase-config.js"></script><script src="/admin-tools.js?v=2"></script>
+  <script>
+    (async function(){
+      const $=function(id){return document.getElementById(id)},status=$('status');let context;
+      function dateInput(value){return new Date(value+'+07:00').toISOString()}
+      async function loadPromotions(){const rows=await window.GembulStaff.call(context.client,'admin_list_promotions');const target=$('promotions');target.replaceChildren();if(!rows.length){target.textContent='Belum ada voucher.';return}rows.forEach(function(promo){const card=document.createElement('article');card.className='item';const title=document.createElement('strong');title.textContent=promo.code+' · '+promo.name;const info=document.createElement('small');info.textContent=(promo.discount_type==='percent'?promo.discount_value+'%':window.GembulStaff.rupiah(promo.discount_value))+' diskon · minimum '+window.GembulStaff.rupiah(promo.minimum_transaction)+' · '+promo.redemptions+' kali digunakan';const dates=document.createElement('small');dates.textContent='Berlaku '+new Date(promo.starts_at).toLocaleString('id-ID')+' sampai '+new Date(promo.ends_at).toLocaleString('id-ID')+' · '+(promo.is_active?'aktif':'nonaktif');card.append(title,info,dates);target.append(card)})}
+      $('promotion-form').addEventListener('submit',async function(event){event.preventDefault();const form=event.currentTarget,data=new FormData(form);try{await window.GembulStaff.call(context.client,'admin_save_promotion',{p_id:null,p_code:data.get('code'),p_name:data.get('name'),p_discount_type:data.get('type'),p_discount_value:Number(data.get('value')),p_minimum_transaction:Number(data.get('minimum')),p_max_redemptions:data.get('max_redemptions')?Number(data.get('max_redemptions')):null,p_per_customer_limit:Number(data.get('per_customer_limit')),p_starts_at:dateInput(data.get('starts_at')),p_ends_at:dateInput(data.get('ends_at')),p_is_active:true,p_terms:data.get('terms')||''});form.reset();window.GembulStaff.setStatus(status,'Voucher berhasil dibuat.',false);await loadPromotions()}catch(error){window.GembulStaff.setStatus(status,error.message||'Voucher gagal dibuat.',true)}});
+      $('campaign-form').addEventListener('submit',async function(event){
+        event.preventDefault();const form=event.currentTarget,data=new FormData(form),target=$('campaign-result');target.replaceChildren();window.GembulStaff.setStatus(status,'Menyusun penerima yang sudah memberi izin...',false);
+        try{
+          const recipients=await window.GembulStaff.call(context.client,'admin_prepare_campaign',{p_name:data.get('name'),p_segment:data.get('segment'),p_message_template:data.get('message')});
+          if(!recipients.length){window.GembulStaff.setStatus(status,'Kampanye tersimpan, tetapi tidak ada penerima yang memenuhi segment dan izin marketing.',false);return}
+          const campaignId=recipients[0].campaign_id;const heading=document.createElement('p');heading.className='hint';heading.textContent='Kampanye disiapkan untuk '+recipients.length+' penerima berizin. Pilih setiap kontak untuk meninjau dan mengirim manual.';target.append(heading);
+          const list=document.createElement('div');list.className='recipients';recipients.forEach(function(recipient){
+            const button=document.createElement('button');button.type='button';button.className='button';button.textContent=recipient.customer_name+' · '+recipient.phone;
+            button.addEventListener('click',async function(){
+              const phone=String(recipient.phone||'').replace(/\D/g,'').replace(/^0/,'62');if(!phone){window.GembulStaff.setStatus(status,'Nomor WhatsApp tidak valid.',true);return}
+              const popup=window.open('about:blank','_blank');if(!popup){window.GembulStaff.setStatus(status,'Izinkan pop-up untuk membuka WhatsApp.',true);return}
+              try{
+                await window.GembulStaff.call(context.client,'admin_mark_campaign_chat_opened',{p_campaign_id:campaignId,p_customer_id:recipient.customer_id});
+                const message=String(data.get('message')).replaceAll('{nama}',recipient.customer_name).replaceAll('{kode_member}',recipient.member_code||'');
+                popup.location='https://wa.me/'+phone+'?text='+encodeURIComponent(message);button.disabled=true;button.textContent=recipient.customer_name+' · percakapan dibuka';
+                window.GembulStaff.setStatus(status,'WhatsApp dibuka. Pesan belum terkirim sampai Anda menekan Kirim di WhatsApp.',false);
+              }catch(error){popup.close();window.GembulStaff.setStatus(status,error.message||'Tautan kampanye gagal dicatat.',true)}
+            });list.append(button)
+          });target.append(list);window.GembulStaff.setStatus(status,'Kampanye disiapkan untuk '+recipients.length+' penerima.',false);
+        }catch(error){window.GembulStaff.setStatus(status,error.message||'Kampanye gagal disiapkan.',true)}
+      });
+      $('logout').addEventListener('click',async function(){const result=await context.client.auth.signOut();if(result.error)window.GembulStaff.setStatus(status,result.error.message,true);else window.location.replace('/account.html')});
+      try{context=await window.GembulStaff.requireStaff(true);if(context){$('marketing').hidden=false;await loadPromotions()}}catch(error){window.GembulStaff.setStatus(status,error.message||'Marketing gagal dibuka.',true)}
+    })();
+  </script>
+</body>
+</html>

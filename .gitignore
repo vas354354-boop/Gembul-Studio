@@ -1,0 +1,8 @@
+node_modules/
+mobile/www/
+dist/
+.env
+.env.*
+!.env.example
+.vercel/
+*.log

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a09">
+  <meta name="description" content="Dashboard staf GEMBUL Studio.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <title>Dashboard Admin | GEMBUL Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0b0a09;--panel:#1a1713;--gold:#d4a86a;--text:#f5efe6;--muted:#a39a8c;--line:#2e2820}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#332516 0,transparent 55%),var(--bg);color:var(--text);font:15px/1.6 Poppins,system-ui,sans-serif}
+    a{color:inherit;text-decoration:none}
+    header{display:flex;justify-content:space-between;align-items:center;padding:18px max(20px,calc((100vw - 1060px)/2));border-bottom:1px solid var(--line)}
+    .brand{font:800 16px Syne,sans-serif;letter-spacing:.2em;color:var(--gold)}
+    .header-actions{display:flex;align-items:center;gap:14px}
+    .back{color:var(--muted);font-size:13px}
+    .logout,.menu-link{border-radius:99px;font:600 13px Poppins,system-ui,sans-serif;cursor:pointer}
+    .logout{padding:9px 14px;border:1px solid var(--line);background:transparent;color:var(--text)}
+    .logout:disabled{opacity:.55;cursor:wait}
+    main{width:min(100% - 32px,760px);margin:48px auto 80px}
+    .eyebrow{color:var(--gold);font-size:12px;letter-spacing:.22em;font-weight:600}
+    h1{font:800 clamp(28px,6vw,42px)/1.2 Syne,sans-serif;margin:8px 0}
+    .intro,.notice{color:var(--muted)}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;margin-top:18px}
+    .role{display:inline-block;margin-top:8px;padding:5px 12px;border:1px solid #8a653d;border-radius:99px;color:var(--gold);font-size:12px}
+    .menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:20px}
+    .menu-link{display:block;padding:18px;border:1px solid #8a653d;background:#21190f;color:var(--gold)}
+    .menu-link strong{display:block;color:var(--text);font-size:15px}
+    .menu-link span{display:block;margin-top:5px;color:var(--muted);font-size:12px;font-weight:400}
+    .notice{font-size:13px;margin:18px 0 0}
+    .section-title{font:700 19px/1.3 Syne,sans-serif;margin:26px 0 12px}
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+    .metric{padding:16px;border:1px solid var(--line);border-radius:14px;background:#0b0a09}
+    .metric-label{color:var(--muted);font-size:12px}
+    .metric-value{display:block;margin-top:6px;font:700 24px/1.2 Syne,sans-serif;color:var(--text)}
+    .metric-hint{margin:5px 0 0;color:var(--muted);font-size:11px}
+    .booking-toolbar{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+    .booking-toolbar label{display:grid;gap:6px;color:var(--muted);font-size:12px}
+    .booking-toolbar input{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit}
+    .refresh{padding:10px 14px;border:1px solid var(--line);border-radius:99px;background:transparent;color:var(--text);font:500 12px Poppins,system-ui,sans-serif;cursor:pointer}
+    .booking-list{display:grid;gap:12px;margin-top:16px}
+    .booking-card{padding:16px;border:1px solid var(--line);border-radius:14px;background:#0b0a09}
+    .booking-card-top{display:flex;justify-content:space-between;gap:12px;align-items:start}
+    .booking-card strong{display:block}
+    .booking-meta,.booking-notes{margin-top:5px;color:var(--muted);font-size:12px}
+    .booking-state{white-space:nowrap;padding:4px 9px;border:1px solid #8a653d;border-radius:99px;color:var(--gold);font-size:11px}
+    .booking-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .booking-action{padding:8px 12px;border:1px solid #8a653d;border-radius:99px;background:#21190f;color:var(--gold);font:500 11px Poppins,system-ui,sans-serif;cursor:pointer}
+    .booking-action.cancel{border-color:var(--line);background:transparent;color:var(--muted)}
+    .booking-action:disabled,.refresh:disabled{opacity:.55;cursor:wait}
+    .empty-state{padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13px}
+    .status{min-height:24px;color:var(--muted);font-size:13px}
+    .status.error{color:#ffb5a8}
+    [hidden]{display:none!important}
+    @media(max-width:480px){main{margin-top:34px}.panel{padding:20px}.back{display:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="/">GEMBUL</a>
+    <div class="header-actions">
+      <a class="back" href="/">Kembali ke situs</a>
+      <button class="logout" id="logout" type="button" hidden>Keluar</button>
+    </div>
+  </header>
+  <main>
+    <div class="eyebrow">AREA STAF</div>
+    <h1>Dashboard Admin</h1>
+    <p id="status" class="status" role="status" aria-live="polite">Memeriksa akses...</p>
+    <section class="panel" id="dashboard" hidden>
+      <div class="eyebrow">MENU ADMIN</div>
+      <span class="role" id="role-label"></span>
+      <h2 class="section-title">Ringkasan hari ini</h2>
+      <div class="metrics" id="metrics" aria-live="polite">
+        <article class="metric"><span class="metric-label">Omzet transaksi selesai</span><strong class="metric-value" id="metric-revenue">Memuat...</strong><p class="metric-hint">Bukan laba bersih.</p></article>
+        <article class="metric"><span class="metric-label">Transaksi selesai</span><strong class="metric-value" id="metric-transactions">Memuat...</strong><p class="metric-hint">Dibuat hari ini.</p></article>
+        <article class="metric"><span class="metric-label">Booking hari ini</span><strong class="metric-value" id="metric-bookings">Memuat...</strong><p class="metric-hint">Semua status booking.</p></article>
+        <article class="metric"><span class="metric-label">Antrean menunggu</span><strong class="metric-value" id="metric-queue">Memuat...</strong><p class="metric-hint">Untuk tanggal hari ini.</p></article>
+        <article class="metric"><span class="metric-label">Pelanggan baru</span><strong class="metric-value" id="metric-customers">Memuat...</strong><p class="metric-hint">Terdaftar hari ini.</p></article>
+        <article class="metric"><span class="metric-label">Barber aktif Cipete</span><strong class="metric-value" id="metric-barbers">Memuat...</strong><p class="metric-hint">Tampil pada katalog booking.</p></article>
+        <article class="metric"><span class="metric-label">Member aktif</span><strong class="metric-value" id="metric-members">Memuat...</strong><p class="metric-hint">Seluruh cabang.</p></article>
+      </div>
+      <h2 class="section-title">Booking &amp; antrean</h2>
+      <div class="booking-toolbar">
+        <label>Tanggal booking<input id="booking-date" type="date"></label>
+        <button class="refresh" id="refresh-bookings" type="button">Muat ulang booking</button>
+      </div>
+      <p class="status" id="booking-status" role="status" aria-live="polite"></p>
+      <div class="booking-list" id="booking-list" aria-live="polite"></div>
+      <nav class="menu" aria-label="Menu admin">
+        <a class="menu-link" href="/pos.html">
+          <strong>Kasir POS</strong>
+          <span>Checkout, pembayaran, nota, diskon terbatas, dan penukaran reward.</span>
+        </a>
+        <a class="menu-link" href="/customers.html">
+          <strong>CRM pelanggan</strong>
+          <span>Pencarian member, riwayat kunjungan, segmentasi, dan izin marketing.</span>
+        </a>
+        <a class="menu-link" href="/inventory.html">
+          <strong>Inventori &amp; pembelian</strong>
+          <span>Stok minimum, pergerakan barang, pemasok, dan penerimaan pembelian.</span>
+        </a>
+        <a class="menu-link" href="/transactions.html">
+          <strong>Riwayat transaksi</strong>
+          <span>Cari nota; refund penuh hanya dapat dilakukan Super Admin.</span>
+        </a>
+        <a class="menu-link" href="/barbers.html">
+          <strong>Kelola barber Cipete</strong>
+          <span>Tambah barber atau ubah status aktif.</span>
+        </a>
+        <a class="menu-link owner-menu" href="/finance.html" hidden>
+          <strong>Keuangan &amp; laporan</strong>
+          <span>Omzet, HPP, refund, pengeluaran, arus kas, dan ekspor CSV.</span>
+        </a>
+        <a class="menu-link owner-menu" href="/promotions.html" hidden>
+          <strong>Promo &amp; marketing</strong>
+          <span>Voucher server-side dan kampanye WhatsApp dengan izin pelanggan.</span>
+        </a>
+      </nav>
+      <p class="notice" id="role-description"></p>
+      <p class="notice">Harga, pembayaran, stok, voucher, refund, dan akses laporan diperiksa kembali oleh RPC Supabase; halaman admin tidak menulis transaksi secara langsung.</p>
+    </section>
+    <section class="panel" id="login-prompt" hidden>
+      <p>Silakan masuk dengan akun staf untuk membuka dashboard.</p>
+      <a class="menu-link" href="/account.html">Masuk ke akun</a>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/supabase-config.js"></script>
+  <script>
+    (function(){
+      var config=window.GEMBUL_SUPABASE;
+      var status=document.getElementById('status');
+      var dashboard=document.getElementById('dashboard');
+      var loginPrompt=document.getElementById('login-prompt');
+      var logoutButton=document.getElementById('logout');
+      var bookingDate=document.getElementById('booking-date');
+      var bookingStatus=document.getElementById('booking-status');
+      var bookingList=document.getElementById('booking-list');
+      var refreshBookings=document.getElementById('refresh-bookings');
+      if(!config||!window.supabase){status.textContent='Layanan belum dapat dimuat. Coba muat ulang halaman.';status.classList.add('error');return}
+      var client=window.supabase.createClient(config.url,config.publishableKey);
+      function showLogin(message){
+        dashboard.hidden=true;
+        logoutButton.hidden=true;
+        loginPrompt.hidden=false;
+        status.textContent=message;
+      }
+      function todayRange(){
+        var parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+        var date={};
+        parts.forEach(function(part){date[part.type]=part.value});
+        var start=new Date(date.year+'-'+date.month+'-'+date.day+'T00:00:00+07:00');
+        return {start:start.toISOString(),end:new Date(start.getTime()+86400000).toISOString(),date:date.year+'-'+date.month+'-'+date.day};
+      }
+      function showMetrics(metrics){
+        document.getElementById('metric-revenue').textContent=new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(metrics.revenue);
+        document.getElementById('metric-transactions').textContent=String(metrics.transactions);
+        document.getElementById('metric-bookings').textContent=String(metrics.bookings);
+        document.getElementById('metric-queue').textContent=String(metrics.queue);
+        document.getElementById('metric-customers').textContent=String(metrics.customers);
+        document.getElementById('metric-barbers').textContent=String(metrics.barbers);
+        document.getElementById('metric-members').textContent=String(metrics.members);
+      }
+      function clearMetrics(){
+        document.querySelectorAll('.metric-value').forEach(function(value){value.textContent='—'});
+      }
+      function localDateRange(dateValue){
+        if(!dateValue||!/^\d{4}-\d{2}-\d{2}$/.test(dateValue))throw new Error('Pilih tanggal booking yang valid.');
+        var start=new Date(dateValue+'T00:00:00+07:00');
+        return {start:start.toISOString(),end:new Date(start.getTime()+86400000).toISOString()};
+      }
+      function bookingStatusLabel(value){
+        return ({pending:'Menunggu konfirmasi',confirmed:'Dikonfirmasi',checked_in:'Check-in',completed:'Selesai',cancelled:'Dibatalkan',no_show:'Tidak hadir'})[value]||'Status tidak diketahui';
+      }
+      function queueStatusLabel(value){
+        return ({waiting:'Menunggu',called:'Dipanggil',serving:'Sedang dilayani',completed:'Selesai',cancelled:'Dibatalkan',no_show:'Tidak hadir'})[value]||'Belum ada antrean';
+      }
+      function actionOptions(status){
+        if(status==='pending')return [{label:'Konfirmasi',value:'confirmed'},{label:'Batalkan',value:'cancelled',cancel:true}];
+        if(status==='confirmed')return [{label:'Check-in',value:'checked_in'},{label:'No-show',value:'no_show'},{label:'Batalkan',value:'cancelled',cancel:true}];
+        if(status==='checked_in')return [{label:'Tandai selesai',value:'completed'}];
+        return [];
+      }
+      function renderBookings(rows){
+        bookingList.replaceChildren();
+        if(!rows.length){
+          var empty=document.createElement('p');
+          empty.className='empty-state';
+          empty.textContent='Tidak ada booking untuk tanggal ini.';
+          bookingList.append(empty);
+          return;
+        }
+        rows.forEach(function(booking){
+          var card=document.createElement('article');
+          card.className='booking-card';
+          var top=document.createElement('div');
+          top.className='booking-card-top';
+          var identity=document.createElement('div');
+          var customer=document.createElement('strong');
+          customer.textContent=booking.customer_name||'Pelanggan';
+          var appointment=document.createElement('div');
+          appointment.className='booking-meta';
+          appointment.textContent=new Date(booking.starts_at).toLocaleString('id-ID',{timeZone:'Asia/Jakarta',hour:'2-digit',minute:'2-digit'})+' WIB · '+(booking.service_names||'Layanan');
+          var contact=document.createElement('div');
+          contact.className='booking-meta';
+          contact.textContent=[booking.barber_name||'Barber belum dipilih',booking.customer_phone||'Nomor WhatsApp belum tersedia'].join(' · ');
+          identity.append(customer,appointment,contact);
+          var state=document.createElement('span');
+          state.className='booking-state';
+          state.textContent=bookingStatusLabel(booking.status);
+          top.append(identity,state);
+          card.append(top);
+          if(booking.queue_number){
+            var queue=document.createElement('div');
+            queue.className='booking-meta';
+            queue.textContent='Antrean #'+booking.queue_number+' · '+queueStatusLabel(booking.queue_status);
+            card.append(queue);
+          }
+          if(booking.notes){
+            var notes=document.createElement('p');
+            notes.className='booking-notes';
+            notes.textContent='Catatan: '+booking.notes;
+            card.append(notes);
+          }
+          var actions=actionOptions(booking.status);
+          if(actions.length){
+            var actionGroup=document.createElement('div');
+            actionGroup.className='booking-actions';
+            actions.forEach(function(action){
+              var button=document.createElement('button');
+              button.type='button';
+              button.className='booking-action'+(action.cancel?' cancel':'');
+              button.textContent=action.label;
+              button.addEventListener('click',function(){updateBookingStatus(booking,action.value,button)});
+              actionGroup.append(button);
+            });
+            card.append(actionGroup);
+          }
+          bookingList.append(card);
+        });
+      }
+      async function loadBookings(){
+        refreshBookings.disabled=true;
+        bookingStatus.classList.remove('error');
+        bookingStatus.textContent='Memuat booking...';
+        try{
+          var range=localDateRange(bookingDate.value);
+          var response=await client.rpc('admin_list_bookings',{p_start:range.start,p_end:range.end});
+          if(response.error)throw response.error;
+          renderBookings(response.data||[]);
+          bookingStatus.textContent=(response.data||[]).length+' booking ditemukan.';
+          return true;
+        }catch(error){
+          bookingList.replaceChildren();
+          bookingStatus.textContent=error&&error.message?error.message:'Booking gagal dimuat.';
+          bookingStatus.classList.add('error');
+          return false;
+        }finally{refreshBookings.disabled=false}
+      }
+      async function updateBookingStatus(booking,nextStatus,button){
+        if(nextStatus==='cancelled'&&!window.confirm('Yakin ingin membatalkan booking pelanggan ini?'))return;
+        button.disabled=true;
+        bookingStatus.classList.remove('error');
+        bookingStatus.textContent='Memperbarui status booking...';
+        try{
+          var response=await client.rpc('admin_update_booking_status',{p_booking_id:booking.id,p_status:nextStatus});
+          if(response.error)throw response.error;
+          if(!response.data)throw new Error('Status booking tidak berubah.');
+          var listRefreshed=await loadBookings();
+          try{await loadMetrics()}
+          catch(error){
+            clearMetrics();
+            status.textContent='Status booking berhasil diperbarui, tetapi ringkasan gagal dimuat: '+(error&&error.message?error.message:'terjadi kesalahan.');
+            status.classList.add('error');
+          }
+          if(!listRefreshed)return;
+          bookingStatus.textContent='Status booking berhasil diperbarui.';
+        }catch(error){
+          bookingStatus.textContent=error&&error.message?error.message:'Status booking gagal diperbarui.';
+          bookingStatus.classList.add('error');
+          button.disabled=false;
+        }
+      }
+      async function loadMetrics(){
+        var range=todayRange();
+        var result=await client.rpc('admin_dashboard_metrics',{
+          p_start:range.start,
+          p_end:range.end,
+          p_queue_date:range.date
+        });
+        if(result.error)throw result.error;
+        if(!result.data||result.data.length!==1)throw new Error('Data ringkasan tidak tersedia.');
+        var metrics=result.data[0];
+        showMetrics({
+          revenue:Number(metrics.revenue),
+          transactions:Number(metrics.completed_transactions),
+          bookings:Number(metrics.bookings),
+          queue:Number(metrics.waiting_queue),
+          customers:Number(metrics.new_customers),
+          barbers:Number(metrics.active_cipete_barbers),
+          members:Number(metrics.active_members)
+        });
+      }
+      async function initialize(){
+        try{
+          var sessionResult=await client.auth.getSession();
+          if(sessionResult.error)throw sessionResult.error;
+          if(!sessionResult.data.session){showLogin('Silakan masuk dengan akun owner/admin terlebih dahulu.');return}
+          var profileResult=await client.from('profiles').select('role,is_active').eq('id',sessionResult.data.session.user.id).maybeSingle();
+          if(profileResult.error)throw profileResult.error;
+          var profile=profileResult.data;
+          if(!profile||!profile.is_active||!['owner','admin_cashier'].includes(profile.role)){
+            showLogin('Akses dashboard ditolak. Halaman ini hanya untuk Super Admin atau Admin Staf yang aktif.');
+            status.classList.add('error');
+            return;
+          }
+          var isOwner=profile.role==='owner';
+          document.getElementById('role-label').textContent=isOwner?'Super Admin':'Admin Staf';
+          document.querySelectorAll('.owner-menu').forEach(function(link){link.hidden=!isOwner});
+          document.getElementById('role-description').textContent=isOwner
+            ?'Super Admin mengelola operasional, pengeluaran, promosi, laporan, dan refund.'
+            :'Admin Staf dapat menjalankan POS, mengelola pelanggan dan stok, barber, serta status booking dan antrean.';
+          loginPrompt.hidden=true;
+          dashboard.hidden=false;
+          logoutButton.hidden=false;
+          bookingDate.value=todayRange().date;
+          status.textContent='Berhasil masuk sebagai '+(isOwner?'Super Admin.':'Admin Staf.');
+          try{await Promise.all([loadMetrics(),loadBookings()])}
+          catch(error){
+            clearMetrics();
+            status.textContent='Dashboard terbuka, tetapi ringkasan gagal dimuat: '+(error&&error.message?error.message:'terjadi kesalahan.');
+            status.classList.add('error');
+          }
+        }catch(error){
+          dashboard.hidden=true;
+          loginPrompt.hidden=false;
+          logoutButton.hidden=true;
+          status.textContent=error&&error.message?error.message:'Terjadi kesalahan saat memeriksa akses.';
+          status.classList.add('error');
+        }
+      }
+      logoutButton.addEventListener('click',async function(){
+        logoutButton.disabled=true;
+        try{
+          var result=await client.auth.signOut();
+          if(result.error)throw result.error;
+          location.href='/account.html';
+        }catch(error){
+          status.textContent=error&&error.message?error.message:'Gagal keluar. Silakan coba kembali.';
+          status.classList.add('error');
+          logoutButton.disabled=false;
+        }
+      });
+      refreshBookings.addEventListener('click',loadBookings);
+      bookingDate.addEventListener('change',loadBookings);
+      client.auth.onAuthStateChange(function(event){
+        if(event==='SIGNED_OUT')location.replace('/account.html');
+      });
+      initialize();
+    })();
+  </script>
+</body>
+</html>

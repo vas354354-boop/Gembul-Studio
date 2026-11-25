@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0b0a09">
+  <title>CRM Pelanggan | GEMBUL Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0b0a09;--panel:#1a1713;--gold:#d4a86a;--text:#f5efe6;--muted:#a39a8c;--line:#342e26;--danger:#ffb5a8}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Poppins,system-ui,sans-serif}a{color:var(--gold);text-decoration:none}
+    header{display:flex;justify-content:space-between;align-items:center;padding:16px max(18px,calc((100vw - 1060px)/2));border-bottom:1px solid var(--line)}nav{display:flex;gap:14px;align-items:center;font-size:12px}
+    .brand,h1,h2{font-family:Syne,sans-serif}.brand{font-weight:800;letter-spacing:.18em}main{width:min(1060px,calc(100% - 28px));margin:28px auto 70px}
+    h1{font-size:clamp(28px,5vw,38px);margin:5px 0}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.18em}.panel{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel);margin:14px 0}
+    .toolbar,.row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.toolbar label,.row label{display:grid;gap:5px;color:var(--muted);font-size:12px;flex:1;min-width:170px}
+    input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text)}textarea{min-height:74px}
+    .button{padding:10px 14px;border:1px solid #8a653d;border-radius:9px;background:#21190f;color:var(--gold);font-weight:600;cursor:pointer}.button:disabled{opacity:.55}
+    .status{min-height:22px;color:var(--muted);font-size:13px}.error{color:var(--danger)!important}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .card{padding:14px;border:1px solid var(--line);border-radius:12px;background:#100e0c}.card strong{display:block}.meta{margin-top:5px;color:var(--muted);font-size:12px}.check{display:flex!important;grid-template-columns:none;align-items:center;gap:9px}.check input{width:17px}
+    .empty{color:var(--muted);font-size:13px}[hidden]{display:none!important}
+    @media(max-width:600px){header{align-items:flex-start}nav{justify-content:flex-end;flex-wrap:wrap}.toolbar>*{width:100%}}
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/">GEMBUL</a><nav><a href="/admin.html">Dashboard</a><a href="/pos.html">Kasir</a><a href="/inventory.html">Inventori</a><button class="button" id="logout" type="button">Keluar</button></nav></header>
+  <main><div class="eyebrow">CUSTOMER RELATIONSHIP MANAGEMENT</div><h1>Pelanggan &amp; Member</h1><p id="status" class="status" role="status" aria-live="polite">Memeriksa akses...</p>
+    <section class="panel" id="crm" hidden>
+      <div class="toolbar"><label>Cari pelanggan<input id="search" type="search" placeholder="Nama, WhatsApp, email, atau kode member"></label><label>Segment<select id="segment"><option value="all">Semua</option><option value="new">Baru</option><option value="active">Aktif (60 hari)</option><option value="loyal">Loyal</option><option value="vip">VIP</option><option value="inactive">Tidak aktif</option><option value="lost">Hilang (>90 hari)</option><option value="birthday">Ulang tahun hari ini</option></select></label><button class="button" id="find" type="button">Cari</button></div>
+      <div class="grid" id="customers" style="margin-top:14px"></div>
+    </section>
+    <section class="panel" id="edit-panel" hidden><h2>Profil pelanggan</h2><form id="edit" class="grid">
+      <input type="hidden" name="id"><label>Nama lengkap<input name="full_name" required minlength="2" maxlength="100"></label><label>WhatsApp<input name="phone" maxlength="30"></label><label>Email<input name="email" type="email" maxlength="254"></label><label>Tanggal lahir<input name="birth_date" type="date"></label><label>Catatan internal<textarea name="notes" maxlength="2000"></textarea></label><label class="check"><input name="marketing_opt_in" type="checkbox">Bersedia menerima promo WhatsApp</label><button class="button" type="submit">Simpan profil</button>
+    </form></section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/supabase-config.js"></script><script src="/admin-tools.js?v=2"></script>
+  <script>
+    (async function(){
+      const $=function(id){return document.getElementById(id)},status=$('status');let context;
+      function render(rows){
+        const target=$('customers');target.replaceChildren();
+        if(!rows.length){target.innerHTML='<p class="empty">Pelanggan tidak ditemukan.</p>';return}
+        rows.forEach(function(customer){
+          const card=document.createElement('article');card.className='card';const name=document.createElement('strong');name.textContent=customer.full_name;
+          const meta=document.createElement('div');meta.className='meta';meta.textContent=[customer.phone||'Tanpa WhatsApp',customer.email||'Tanpa email',customer.member_code||''].filter(Boolean).join(' · ');
+          const stats=document.createElement('div');stats.className='meta';stats.textContent=customer.transaction_count+' transaksi · '+window.GembulStaff.rupiah(customer.total_spend)+' · terakhir '+(customer.last_visit?new Date(customer.last_visit).toLocaleDateString('id-ID'):'belum transaksi');
+          const segment=document.createElement('div');segment.className='meta';segment.textContent='Segment: '+customer.segment+' · '+(customer.marketing_opt_in?'izin promo aktif':'tidak berlangganan promo');
+          const edit=document.createElement('button');edit.type='button';edit.className='button';edit.textContent='Lihat / ubah profil';edit.style.marginTop='10px';edit.addEventListener('click',function(){const form=$('edit');form.elements.id.value=customer.id;form.elements.full_name.value=customer.full_name||'';form.elements.phone.value=customer.phone||'';form.elements.email.value=customer.email||'';form.elements.birth_date.value=customer.birth_date||'';form.elements.notes.value=customer.notes||'';form.elements.marketing_opt_in.checked=customer.marketing_opt_in;$('edit-panel').hidden=false;$('edit-panel').scrollIntoView({behavior:'smooth'})});
+          card.append(name,meta,stats,segment,edit);target.append(card);
+        });
+      }
+      async function load(){window.GembulStaff.setStatus(status,'Memuat pelanggan...',false);try{const rows=await window.GembulStaff.call(context.client,'admin_search_customers',{p_search:$('search').value.trim()||null,p_segment:$('segment').value,p_limit:100,p_offset:0});render(rows);window.GembulStaff.setStatus(status,rows.length+' pelanggan ditemukan.',false)}catch(error){window.GembulStaff.setStatus(status,error.message||'Data pelanggan gagal dimuat.',true)}}
+      $('find').addEventListener('click',load);$('search').addEventListener('keydown',function(event){if(event.key==='Enter'){event.preventDefault();load()}});
+      $('edit').addEventListener('submit',async function(event){event.preventDefault();const form=event.currentTarget,data=new FormData(form);try{await window.GembulStaff.call(context.client,'admin_update_customer',{p_customer_id:data.get('id'),p_full_name:data.get('full_name'),p_phone:data.get('phone')||null,p_email:data.get('email')||null,p_birth_date:data.get('birth_date')||null,p_notes:data.get('notes')||'',p_marketing_opt_in:data.get('marketing_opt_in')==='on'});window.GembulStaff.setStatus(status,'Profil pelanggan berhasil diperbarui.',false);$('edit-panel').hidden=true;await load()}catch(error){window.GembulStaff.setStatus(status,error.message||'Profil pelanggan gagal disimpan.',true)}});
+      $('logout').addEventListener('click',async function(){const result=await context.client.auth.signOut();if(result.error)window.GembulStaff.setStatus(status,result.error.message,true);else window.location.replace('/account.html')});
+      try{context=await window.GembulStaff.requireStaff(false);if(context){$('crm').hidden=false;await load()}}catch(error){window.GembulStaff.setStatus(status,error.message||'CRM gagal dibuka.',true)}
+    })();
+  </script>
+</body>
+</html>

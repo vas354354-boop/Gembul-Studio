@@ -1,0 +1,15 @@
+{
+  "appId": "com.gembul.studio",
+  "appName": "GEMBUL Studio",
+  "webDir": "mobile/www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#0b0a09",
+      "showSpinner": false
+    }
+  }
+}

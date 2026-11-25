@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#0b0a09">
+  <title>Keuangan &amp; Laporan | GEMBUL Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0b0a09;--panel:#1a1713;--gold:#d4a86a;--text:#f5efe6;--muted:#a39a8c;--line:#342e26;--danger:#ffb5a8}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Poppins,system-ui,sans-serif}a{color:var(--gold);text-decoration:none}
+    header{display:flex;justify-content:space-between;align-items:center;padding:16px max(18px,calc((100vw - 1060px)/2));border-bottom:1px solid var(--line)}nav{display:flex;gap:14px;align-items:center;font-size:12px}
+    .brand,h1,h2{font-family:Syne,sans-serif}.brand{font-weight:800;letter-spacing:.18em}main{width:min(1060px,calc(100% - 28px));margin:28px auto 70px}
+    h1{font-size:clamp(28px,5vw,38px);margin:5px 0}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.18em}.panel{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel);margin:14px 0}
+    .toolbar,.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}.metric,.card{padding:14px;border:1px solid var(--line);border-radius:12px;background:#100e0c}
+    .metric small,.muted{display:block;color:var(--muted);font-size:12px}.metric strong{display:block;margin-top:6px;font:700 20px Syne,sans-serif}
+    label{display:grid;gap:5px;color:var(--muted);font-size:12px}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text)}
+    .button{padding:10px 14px;border:1px solid #8a653d;border-radius:9px;background:#21190f;color:var(--gold);font-weight:600;cursor:pointer}.status{min-height:22px;color:var(--muted);font-size:13px}.error{color:var(--danger)!important}.list{display:grid;gap:8px}.item{padding:11px;border:1px solid var(--line);border-radius:10px;background:#100e0c}.item small{display:block;color:var(--muted)}[hidden]{display:none!important}
+    @media(max-width:600px){header{align-items:flex-start}nav{justify-content:flex-end;flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/">GEMBUL</a><nav><a href="/admin.html">Dashboard</a><a href="/pos.html">Kasir</a><a href="/inventory.html">Inventori</a><button class="button" id="logout" type="button">Keluar</button></nav></header>
+  <main><div class="eyebrow">SUPER ADMIN · KEUANGAN &amp; LAPORAN</div><h1>Keuangan</h1><p id="status" class="status" role="status" aria-live="polite">Memeriksa akses...</p>
+    <section id="finance" hidden>
+      <section class="panel"><div class="toolbar"><label>Dari tanggal<input id="start" type="date"></label><label>Sampai tanggal<input id="end" type="date"></label><button class="button" id="load" type="button">Tampilkan laporan</button><button class="button" id="export" type="button" disabled>Unduh CSV</button></div><p class="muted">Laba bersih di bawah adalah estimasi operasional (omzet selesai − HPP produk − pengeluaran), bukan laporan pajak atau rekonsiliasi akuntansi.</p></section>
+      <section class="panel"><div class="metrics" id="metrics"></div></section>
+      <div class="grid">
+        <section class="panel"><h2>Metode pembayaran</h2><div class="list" id="methods"></div></section>
+        <section class="panel"><h2>Layanan &amp; produk terlaris</h2><div class="list" id="tops"></div></section>
+      </div>
+      <section class="panel"><h2>Catat pengeluaran</h2><form id="expense" class="grid"><label>Kategori<input name="category" required minlength="2" maxlength="80" placeholder="Sewa, utilitas, perlengkapan..."></label><label>Keterangan<input name="description" maxlength="500"></label><label>Jumlah (Rp)<input name="amount" type="number" min="1" step="1" required></label><label>Tanggal<input name="expense_date" type="date" required></label><button class="button" type="submit">Simpan pengeluaran</button></form></section>
+      <section class="panel"><h2>Rincian pengeluaran</h2><div class="list" id="expenses"></div></section>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/supabase-config.js"></script><script src="/admin-tools.js?v=2"></script>
+  <script>
+    (async function(){
+      const $=function(id){return document.getElementById(id)},status=$('status');let context,lastReport;
+      function today(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());return parts}
+      function plusDay(value){const date=new Date(value+'T00:00:00+07:00');date.setUTCDate(date.getUTCDate()+1);return date.toISOString().slice(0,10)}
+      function timestamp(value){return new Date(value+'T00:00:00+07:00').toISOString()}
+      function metric(label,value){const card=document.createElement('article');card.className='metric';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;card.append(small,strong);return card}
+      function addList(target,items,empty){target.replaceChildren();if(!items.length){target.textContent=empty;return}items.forEach(function(text){const row=document.createElement('div');row.className='item';row.textContent=text;target.append(row)})}
+      async function load(){
+        const start=$('start').value,end=$('end').value;if(!start||!end||end<start){window.GembulStaff.setStatus(status,'Pilih rentang tanggal yang valid.',true);return}
+        window.GembulStaff.setStatus(status,'Memuat laporan keuangan...',false);
+        try{
+          lastReport=await window.GembulStaff.call(context.client,'admin_business_report',{p_start:timestamp(start),p_end:timestamp(plusDay(end))});
+          const metrics=$('metrics');metrics.replaceChildren();
+          [['Omzet transaksi selesai',lastReport.revenue],['Jumlah transaksi',lastReport.transactions],['Refund',lastReport.refunds],['HPP produk terjual',lastReport.cost_of_goods],['Pengeluaran',lastReport.expenses],['Laba kotor estimasi',lastReport.gross_profit],['Laba bersih estimasi',lastReport.estimated_net_profit],['Arus kas bersih estimasi',lastReport.net_cash_flow]].forEach(function(item){metrics.append(metric(item[0],item[0]==='Jumlah transaksi'?String(item[1]):window.GembulStaff.rupiah(item[1])))});
+          addList($('methods'),Object.entries(lastReport.payment_methods||{}).map(function(item){return item[0]+': '+window.GembulStaff.rupiah(item[1])}),'Belum ada pembayaran.');
+          addList($('tops'),(lastReport.top_services||[]).map(function(item){return 'Layanan · '+item.name+' ('+item.quantity+')'}).concat((lastReport.top_products||[]).map(function(item){return 'Produk · '+item.name+' ('+item.quantity+')'})),'Belum ada item terjual.');
+          const expenses=await window.GembulStaff.call(context.client,'admin_list_expenses',{p_start:start,p_end:end});
+          const list=$('expenses');list.replaceChildren();if(!expenses.length)list.textContent='Tidak ada pengeluaran pada rentang ini.';expenses.forEach(function(expense){const row=document.createElement('div');row.className='item';const strong=document.createElement('strong');strong.textContent=expense.category+' · '+window.GembulStaff.rupiah(expense.amount);const small=document.createElement('small');small.textContent=expense.expense_date+' · '+(expense.description||'Tanpa keterangan');row.append(strong,small);list.append(row)});
+          $('export').disabled=false;window.GembulStaff.setStatus(status,'Laporan diperbarui.',false);
+        }catch(error){lastReport=null;$('export').disabled=true;window.GembulStaff.setStatus(status,error.message||'Laporan gagal dimuat.',true)}
+      }
+      $('load').addEventListener('click',load);
+      $('expense').elements.expense_date.value=today();
+      $('expense').addEventListener('submit',async function(event){event.preventDefault();const data=new FormData(event.currentTarget);try{await window.GembulStaff.call(context.client,'admin_create_expense',{p_category:data.get('category'),p_description:data.get('description')||'',p_amount:Number(data.get('amount')),p_expense_date:data.get('expense_date')});window.GembulStaff.setStatus(status,'Pengeluaran tersimpan.',false);event.currentTarget.reset();event.currentTarget.elements.expense_date.value=today();await load()}catch(error){window.GembulStaff.setStatus(status,error.message||'Pengeluaran gagal disimpan.',true)}});
+      $('export').addEventListener('click',function(){if(!lastReport)return;const rows=[['Metrik','Nilai'],...Object.entries(lastReport).filter(function(item){return !Array.isArray(item[1])&&typeof item[1]!=='object'}),...Object.entries(lastReport.payment_methods||{}).map(function(item){return ['Pembayaran '+item[0],item[1]]})];const csv=rows.map(function(row){return row.map(function(value){return '"'+String(value==null?'':value).replace(/"/g,'""')+'"'}).join(',')}).join('\r\n');const link=document.createElement('a');link.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));link.download='gembul-laporan-'+$('start').value+'-'+$('end').value+'.csv';link.click();URL.revokeObjectURL(link.href)});
+      $('logout').addEventListener('click',async function(){const result=await context.client.auth.signOut();if(result.error)window.GembulStaff.setStatus(status,result.error.message,true);else window.location.replace('/account.html')});
+      try{context=await window.GembulStaff.requireStaff(true);if(context){$('finance').hidden=false;$('start').value=today();$('end').value=today();await load()}}catch(error){window.GembulStaff.setStatus(status,error.message||'Laporan gagal dibuka.',true)}
+    })();
+  </script>
+</body>
+</html>

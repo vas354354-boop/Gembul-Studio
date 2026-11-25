@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a09">
+  <meta name="description" content="Masuk ke akun pelanggan GEMBUL Studio untuk melihat kartu member dan progres loyalty.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <title>Akun Pelanggan | GEMBUL Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0b0a09;--panel:#1a1713;--gold:#d4a86a;--text:#f5efe6;--muted:#a39a8c;--line:#2e2820}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#332516 0,transparent 55%),var(--bg);color:var(--text);font:15px/1.6 Poppins,system-ui,sans-serif}
+    a{color:inherit;text-decoration:none}
+    header{display:flex;justify-content:space-between;align-items:center;padding:18px max(20px,calc((100vw - 1060px)/2));border-bottom:1px solid var(--line);background:#0b0a09c9}
+    .brand{font:800 16px Syne,sans-serif;letter-spacing:.2em;color:var(--gold)}
+    .back{color:var(--muted);font-size:13px}
+    main{width:min(100% - 32px,560px);margin:56px auto 80px}
+    h1,h2{font-family:Syne,sans-serif;line-height:1.2}
+    h1{font-size:clamp(28px,6vw,42px);margin:8px 0}
+    h2{font-size:23px}
+    .eyebrow{color:var(--gold);font-size:12px;letter-spacing:.22em;font-weight:600}
+    .intro{color:var(--muted);margin:10px 0 28px}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px}
+    .tabs{display:flex;gap:8px;margin-bottom:22px}
+    .tabs button,.submit,.logout{font:600 14px Poppins,system-ui,sans-serif;cursor:pointer}
+    .tabs button{flex:1;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:11px}
+    .tabs button[aria-selected="true"]{color:#211709;background:var(--gold);border-color:var(--gold)}
+    .text-button{justify-self:start;padding:4px 0;border:0;background:transparent;color:var(--gold);font:500 13px Poppins,system-ui,sans-serif;cursor:pointer}
+    form{display:grid;gap:13px}
+    label{display:grid;gap:6px;color:var(--muted);font-size:13px}
+    input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--text);font:inherit}
+    input:focus{outline:2px solid #d4a86a80;border-color:var(--gold)}
+    .submit,.logout{border:0;border-radius:12px;background:var(--gold);color:#211709;padding:13px 18px}
+    .submit:disabled{opacity:.55;cursor:wait}
+    .status{min-height:24px;color:var(--muted);font-size:13px;margin:12px 0 0}
+    .status.error{color:#ffb5a8}
+    .status.success{color:#b4edc1}
+    .staff-logout{margin-top:14px;padding:10px 16px;border:1px solid var(--line);border-radius:99px;background:transparent;color:var(--text);font:500 13px Poppins,system-ui,sans-serif;cursor:pointer}
+    .staff-logout:disabled{opacity:.55;cursor:wait}
+    [hidden]{display:none!important}
+    .member{margin-top:20px;padding:24px;border:1px solid #8a653d;border-radius:18px;background:linear-gradient(145deg,#2c2115,#17130f)}
+    .member-top{display:flex;justify-content:space-between;gap:16px;align-items:start}
+    .member-name{font-weight:600}
+    .member-code{color:var(--gold2,#f3d7a1);font:700 13px ui-monospace,monospace;letter-spacing:.1em}
+    .stamp-row{display:flex;gap:9px;margin:20px 0 10px}
+    .stamp{width:34px;height:34px;border:1px solid #8a653d;border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:13px}
+    .stamp.earned{background:var(--gold);color:#211709;border-color:var(--gold)}
+    .member small{color:var(--muted)}
+    .member-foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+    .history{margin-top:24px}.history h2{margin:0 0 14px}.booking-list{display:grid;gap:10px}.booking-item{padding:16px;border:1px solid var(--line);border-radius:14px;background:#0b0a09}.booking-item strong{display:block}.booking-meta{color:var(--muted);font-size:13px;margin-top:5px}.booking-status{display:inline-block;margin-top:10px;padding:3px 9px;border:1px solid var(--line);border-radius:99px;color:var(--gold);font-size:12px}.cancel-booking{margin-top:12px;background:transparent;border:1px solid #8a653d;border-radius:99px;padding:8px 13px;color:var(--text);font:500 12px Poppins,system-ui,sans-serif;cursor:pointer}.cancel-booking:disabled{opacity:.55;cursor:wait}.empty-history{padding:18px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:13px}
+    @media(max-width:480px){main{margin-top:34px}.panel{padding:20px}.member-top{display:block}.member-code{display:block;margin-top:8px}}
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="/">GEMBUL</a>
+    <a class="back" href="/">Kembali ke situs utama</a>
+  </header>
+  <main>
+    <div class="eyebrow">GEMBUL REWARDS</div>
+    <h1>Akun pelanggan</h1>
+    <p class="intro">Daftar gratis untuk bergabung, atau masuk untuk melihat kartu member dan progres stamp Anda.</p>
+
+    <section class="panel" id="auth-panel" aria-label="Masuk atau daftar">
+      <div class="tabs" role="tablist" aria-label="Jenis akun">
+        <button id="login-tab" type="button" role="tab" aria-selected="true" aria-controls="login-form">Masuk</button>
+        <button id="signup-tab" type="button" role="tab" aria-selected="false" aria-controls="signup-form">Daftar gratis</button>
+      </div>
+      <form id="login-form">
+        <label>Email<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" minlength="8" required></label>
+        <button class="submit" type="submit">Masuk</button>
+        <button class="text-button" id="forgot-password" type="button">Lupa password?</button>
+      </form>
+      <form id="recovery-form" hidden>
+        <label>Email akun Anda<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+        <button class="submit" type="submit">Kirim email pemulihan</button>
+        <button class="text-button" id="back-to-login" type="button">Kembali ke masuk</button>
+      </form>
+      <form id="reset-form" hidden>
+        <label>Password baru<input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
+        <label>Ulangi password baru<input name="confirm_password" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
+        <button class="submit" type="submit">Simpan password baru</button>
+      </form>
+      <form id="signup-form" hidden>
+        <label>Nama lengkap<input name="full_name" type="text" autocomplete="name" maxlength="100" required></label>
+        <label>Nomor WhatsApp <span>(opsional)</span><input name="phone" type="tel" autocomplete="tel" maxlength="30" placeholder="08xxxxxxxxxx"></label>
+        <label>Email<input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+        <label>Password<input name="password" type="password" autocomplete="new-password" minlength="8" required></label>
+        <button class="submit" type="submit">Buat akun gratis</button>
+      </form>
+    </section>
+    <p class="status" id="auth-status" role="status" aria-live="polite"></p>
+
+    <section class="member" id="member-card" hidden aria-label="Kartu member GEMBUL REWARDS">
+      <span id="membership"></span>
+      <div class="member-top">
+        <div><div class="eyebrow">MEMBER GEMBUL REWARDS</div><div class="member-name" id="member-name"></div></div>
+        <span class="member-code" id="member-code"></span>
+      </div>
+      <div class="stamp-row" id="stamp-row" aria-label="Progres stamp"></div>
+      <small id="stamp-progress"></small>
+      <div class="member-foot"><small>Setiap 5 stamp: gratis potong rambut dewasa</small><button class="logout" id="logout" type="button">Keluar</button></div>
+    </section>
+    <section class="panel" id="staff-tools" hidden aria-label="Akun barber">
+      <div class="eyebrow">AKUN BARBER</div>
+      <p>Halaman akun pelanggan tidak menampilkan menu pengelolaan untuk akun barber.</p>
+      <button class="staff-logout" id="staff-logout" type="button">Keluar dari akun</button>
+    </section>
+    <section class="history" id="booking-history" hidden aria-labelledby="history-title">
+      <h2 id="history-title">Riwayat booking</h2>
+      <div class="booking-list" id="booking-list" aria-live="polite"></div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/supabase-config.js"></script>
+  <script>
+    (function(){
+      var config=window.GEMBUL_SUPABASE;
+      var status=document.getElementById('auth-status');
+      var authPanel=document.getElementById('auth-panel');
+      var memberCard=document.getElementById('member-card');
+      var staffTools=document.getElementById('staff-tools');
+      var bookingHistory=document.getElementById('booking-history');
+      var bookingList=document.getElementById('booking-list');
+      var loginTab=document.getElementById('login-tab');
+      var signupTab=document.getElementById('signup-tab');
+      var loginForm=document.getElementById('login-form');
+      var signupForm=document.getElementById('signup-form');
+      var recoveryForm=document.getElementById('recovery-form');
+      var resetForm=document.getElementById('reset-form');
+      var recoveryComplete=false;
+      var recoveryRequested=new URLSearchParams(window.location.search).get('type')==='recovery'
+        || new URLSearchParams(window.location.hash.slice(1)).get('type')==='recovery';
+      var resetMode=recoveryRequested;
+      if(!config||!window.supabase){setStatus('Layanan akun belum dapat dimuat. Silakan coba kembali nanti.',true);return}
+      var client=window.supabase.createClient(config.url,config.publishableKey);
+
+      function setStatus(message,isError,isSuccess){
+        status.textContent=message;
+        status.classList.toggle('error',!!isError);
+        status.classList.toggle('success',!!isSuccess);
+      }
+      function showTab(tab,preserveStatus){
+        var login=tab==='login';
+        loginTab.setAttribute('aria-selected',String(login));
+        signupTab.setAttribute('aria-selected',String(!login));
+        loginForm.hidden=!login;
+        signupForm.hidden=login;
+        recoveryForm.hidden=true;
+        resetForm.hidden=true;
+        if(!preserveStatus)setStatus('');
+      }
+      function setBusy(form,busy){
+        form.querySelectorAll('button').forEach(function(button){button.disabled=busy});
+      }
+      function redirectUri(){
+        var isNative=window.Capacitor&&typeof window.Capacitor.isNativePlatform==='function'&&window.Capacitor.isNativePlatform();
+        return new URL('/account.html',isNative?'https://gembul-studio.vercel.app':window.location.origin).toString();
+      }
+      function showRecovery(){
+        resetMode=false;
+        showTab('login');
+        loginForm.hidden=true;
+        recoveryForm.hidden=false;
+        recoveryForm.elements.email.value=loginForm.elements.email.value.trim();
+        recoveryForm.elements.email.required=true;
+        setStatus('');
+      }
+      function showPasswordReset(message){
+        resetMode=true;
+        recoveryComplete=false;
+        authPanel.hidden=false;
+        memberCard.hidden=true;
+        staffTools.hidden=true;
+        bookingHistory.hidden=true;
+        loginForm.hidden=true;
+        signupForm.hidden=true;
+        recoveryForm.hidden=true;
+        resetForm.hidden=false;
+        loginTab.hidden=true;
+        signupTab.hidden=true;
+        setStatus(message||'Buat password baru untuk akun Anda.',false,true);
+      }
+      function friendlyError(error){
+        var message=error&&error.message?error.message:'Terjadi kesalahan. Silakan coba kembali.';
+        if(/already registered|already been registered/i.test(message))return 'Email ini sudah terdaftar. Silakan masuk.';
+        if(/invalid login credentials/i.test(message))return 'Email atau password tidak sesuai.';
+        if(/email not confirmed/i.test(message))return 'Silakan konfirmasi email terlebih dahulu, lalu masuk.';
+        return message;
+      }
+      function escapeDisplay(value){return String(value||'').slice(0,100)}
+      function statusLabel(value){
+        return ({pending:'Menunggu konfirmasi',confirmed:'Dikonfirmasi',checked_in:'Sudah check-in',cancelled:'Dibatalkan',no_show:'Tidak hadir',completed:'Selesai'})[value]||'Status tidak diketahui';
+      }
+      async function loadBookings(customerId){
+        bookingHistory.hidden=false;
+        bookingList.replaceChildren();
+        var bookingResult=await client.from('bookings').select('id,starts_at,status,created_at').eq('customer_id',customerId).order('starts_at',{ascending:false}).limit(20);
+        if(bookingResult.error)throw bookingResult.error;
+        if(!bookingResult.data.length){
+          var empty=document.createElement('p');empty.className='empty-history';empty.textContent='Belum ada riwayat booking. Booking baru dapat dibuat dari halaman Booking Online.';bookingList.append(empty);return;
+        }
+        var bookingIds=bookingResult.data.map(function(booking){return booking.id});
+        var queueResult=await client.from('queues').select('booking_id,queue_number,queue_date').in('booking_id',bookingIds);
+        if(queueResult.error)throw queueResult.error;
+        var queuesByBooking=new Map(queueResult.data.map(function(queue){return [queue.booking_id,queue]}));
+        bookingResult.data.forEach(function(booking){
+          var item=document.createElement('article');item.className='booking-item';
+          var title=document.createElement('strong');title.textContent=new Date(booking.starts_at).toLocaleString('id-ID',{dateStyle:'full',timeStyle:'short'});
+          var queue=queuesByBooking.get(booking.id);
+          var detail=document.createElement('div');detail.className='booking-meta';detail.textContent=queue?'Nomor antrean '+queue.queue_number+' • '+new Date(queue.queue_date+'T00:00:00').toLocaleDateString('id-ID'):'Nomor antrean belum tersedia';
+          var state=document.createElement('span');state.className='booking-status';state.textContent=statusLabel(booking.status);
+          item.append(title,detail,state);
+          if(['pending','confirmed'].includes(booking.status)){
+            var cancel=document.createElement('button');cancel.type='button';cancel.className='cancel-booking';cancel.textContent='Batalkan booking';
+            cancel.addEventListener('click',async function(){
+              if(!window.confirm('Yakin ingin membatalkan booking ini?'))return;
+              cancel.disabled=true;setStatus('Membatalkan booking...');
+              try{
+                var response=await client.rpc('cancel_own_booking',{p_booking_id:booking.id});
+                if(response.error)throw response.error;
+                if(!response.data)throw new Error('Booking tidak dapat dibatalkan karena statusnya sudah berubah.');
+                setStatus('Booking berhasil dibatalkan.',false,true);
+                await loadBookings(customerId);
+              }catch(error){setStatus(friendlyError(error),true);cancel.disabled=false}
+            });
+            item.append(cancel);
+          }
+          bookingList.append(item);
+        });
+      }
+      async function loadMember(user){
+        authPanel.hidden=true;
+        memberCard.hidden=false;
+        staffTools.hidden=true;
+        bookingHistory.hidden=true;
+        document.getElementById('member-name').textContent=escapeDisplay(user.user_metadata&&user.user_metadata.full_name||user.email);
+        document.getElementById('member-code').textContent='MEMBER';
+        var profileResult=await client.from('profiles').select('role,is_active').eq('id',user.id).maybeSingle();
+        if(profileResult.error)throw profileResult.error;
+        if(profileResult.data&&profileResult.data.is_active&&['owner','admin_cashier','barber'].includes(profileResult.data.role)){
+          if(window.setCustomerNavigationVisible)window.setCustomerNavigationVisible(false);
+          if(profileResult.data.role!=='barber'&&!recoveryComplete){window.location.replace('/admin.html');return}
+          memberCard.hidden=true;
+          staffTools.hidden=profileResult.data.role!=='barber';
+          setStatus(profileResult.data.role==='barber'?'Akun barber tidak menggunakan menu pelanggan.':'Akun staf tidak menggunakan menu pelanggan. Buka dashboard admin.',false,true);
+          return;
+        }
+        if(window.setCustomerNavigationVisible)window.setCustomerNavigationVisible(true);
+        var customerResult=await client.from('customers').select('id,full_name,member_code').eq('profile_id',user.id).maybeSingle();
+        if(customerResult.error)throw customerResult.error;
+        if(!customerResult.data){
+          memberCard.hidden=true;
+          setStatus('Profil pelanggan belum tersedia. Hubungi admin Gembul Studio.',true);
+          return;
+        }
+        var customer=customerResult.data;
+        document.getElementById('member-name').textContent=escapeDisplay(customer.full_name);
+        document.getElementById('member-code').textContent=escapeDisplay(customer.member_code);
+        var membershipResult=await client.from('memberships').select('id').eq('customer_id',customer.id).maybeSingle();
+        if(membershipResult.error)throw membershipResult.error;
+        if(!membershipResult.data){
+          memberCard.hidden=true;
+          setStatus('Membership belum tersedia. Hubungi admin Gembul Studio.',true);
+          return;
+        }
+        var stampsResult=await client.from('loyalty_stamps').select('id',{count:'exact',head:true}).eq('membership_id',membershipResult.data.id).eq('is_valid',true);
+        if(stampsResult.error)throw stampsResult.error;
+        var stamps=stampsResult.count||0;
+        var progress=stamps%5;
+        var row=document.getElementById('stamp-row');
+        row.replaceChildren();
+        for(var i=0;i<5;i++){
+          var stamp=document.createElement('span');
+          stamp.className='stamp'+(i<progress?' earned':'');
+          stamp.textContent=i<progress?'✓':String(i+1);
+          row.append(stamp);
+        }
+        document.getElementById('stamp-progress').textContent=progress+' dari 5 stamp menuju potong rambut gratis'+(stamps>=5?' (total '+stamps+' stamp terkumpul)':'');
+        await loadBookings(customer.id);
+        if(window.location.hash){
+          var section=document.getElementById(window.location.hash.slice(1));
+          if(section)setTimeout(function(){section.scrollIntoView({behavior:'smooth',block:'start'})},0);
+        }
+        setStatus('Berhasil masuk.',false,true);
+      }
+      loginTab.addEventListener('click',function(){showTab('login')});
+      signupTab.addEventListener('click',function(){showTab('signup')});
+      document.getElementById('forgot-password').addEventListener('click',showRecovery);
+      document.getElementById('back-to-login').addEventListener('click',function(){showTab('login')});
+      recoveryForm.addEventListener('submit',async function(event){
+        event.preventDefault();
+        setBusy(recoveryForm,true);
+        setStatus('Mengirim email pemulihan...');
+        try{
+          var result=await client.auth.resetPasswordForEmail(recoveryForm.elements.email.value.trim(),{redirectTo:redirectUri()});
+          if(result.error)throw result.error;
+          recoveryComplete=true;
+          showTab('login',true);
+          setStatus('Jika alamat email terdaftar, tautan pemulihan akan dikirim. Buka tautan itu di perangkat yang sama untuk mengatur password baru.',false,true);
+        }catch(error){setStatus(friendlyError(error),true)}
+        finally{setBusy(recoveryForm,false)}
+      });
+      resetForm.addEventListener('submit',async function(event){
+        event.preventDefault();
+        var password=resetForm.elements.password.value;
+        if(password!==resetForm.elements.confirm_password.value){setStatus('Konfirmasi password tidak sama.',true);return}
+        setBusy(resetForm,true);
+        setStatus('Menyimpan password baru...');
+        try{
+          var result=await client.auth.updateUser({password:password});
+          if(result.error)throw result.error;
+          resetForm.reset();
+          recoveryComplete=true;
+          resetMode=false;
+          loginTab.hidden=false;
+          signupTab.hidden=false;
+          showTab('login');
+          setStatus('Password berhasil diperbarui. Silakan masuk dengan password baru.',false,true);
+        }catch(error){setStatus(friendlyError(error),true)}
+        finally{setBusy(resetForm,false)}
+      });
+      loginForm.addEventListener('submit',async function(event){
+        event.preventDefault();
+        var button=loginForm.querySelector('button[type="submit"]');
+        button.disabled=true;
+        setStatus('Memeriksa akun...');
+        var values=new FormData(loginForm);
+        try{
+          var result=await client.auth.signInWithPassword({email:String(values.get('email')).trim(),password:String(values.get('password'))});
+          if(result.error){setStatus(friendlyError(result.error),true);return}
+          await loadMember(result.data.user);
+        }catch(error){authPanel.hidden=false;memberCard.hidden=true;staffTools.hidden=true;bookingHistory.hidden=true;setStatus(friendlyError(error),true)}
+        finally{button.disabled=false}
+      });
+      signupForm.addEventListener('submit',async function(event){
+        event.preventDefault();
+        var button=signupForm.querySelector('button[type="submit"]');
+        button.disabled=true;
+        setStatus('Membuat akun...');
+        var values=new FormData(signupForm);
+        try{
+          var result=await client.auth.signUp({
+            email:String(values.get('email')).trim(),
+            password:String(values.get('password')),
+            options:{data:{full_name:String(values.get('full_name')).trim(),phone:String(values.get('phone')).trim()}}
+          });
+          if(result.error){setStatus(friendlyError(result.error),true);return}
+          signupForm.reset();
+          if(result.data.session&&result.data.user){await loadMember(result.data.user);return}
+          showTab('login');
+          setStatus('Akun berhasil dibuat. Periksa email untuk konfirmasi, lalu masuk.',false,true);
+        }catch(error){setStatus(friendlyError(error),true)}
+        finally{button.disabled=false}
+      });
+      async function signOut(button){
+        if(button)button.disabled=true;
+        try{
+          var result=await client.auth.signOut();
+          if(result.error){setStatus(friendlyError(result.error),true);return}
+          memberCard.hidden=true;
+          staffTools.hidden=true;
+          bookingHistory.hidden=true;
+          loginTab.hidden=false;
+          signupTab.hidden=false;
+          authPanel.hidden=false;
+          loginForm.reset();
+          showTab('login');
+          setStatus('Anda sudah keluar.',false,true);
+        }catch(error){setStatus(friendlyError(error),true)}
+        finally{if(button)button.disabled=false}
+      }
+      document.getElementById('logout').addEventListener('click',function(event){signOut(event.currentTarget)});
+      document.getElementById('staff-logout').addEventListener('click',function(event){signOut(event.currentTarget)});
+      client.auth.getSession().then(function(result){
+        if(result.error){setStatus(friendlyError(result.error),true);return}
+        if(resetMode){setStatus('Memeriksa tautan pemulihan password...');return}
+        if(result.data.session&&!recoveryComplete)loadMember(result.data.session.user).catch(function(error){authPanel.hidden=false;memberCard.hidden=true;staffTools.hidden=true;bookingHistory.hidden=true;setStatus(friendlyError(error),true)});
+      }).catch(function(error){setStatus(friendlyError(error),true)});
+      client.auth.onAuthStateChange(function(event,session){
+        if(event==='PASSWORD_RECOVERY'){showPasswordReset();return}
+        if(event==='SIGNED_OUT'){
+          authPanel.hidden=false;memberCard.hidden=true;staffTools.hidden=true;bookingHistory.hidden=true;
+          loginTab.hidden=false;signupTab.hidden=false;showTab('login');
+        }
+      });
+    })();
+  </script>
+  <script src="/customer-nav.js"></script>
+</body>
+</html>

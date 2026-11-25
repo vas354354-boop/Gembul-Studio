@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a09">
+  <title>Booking | GEMBUL Studio</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0b0a09;--panel:#1a1713;--gold:#d4a86a;--text:#f5efe6;--muted:#a39a8c;--line:#2e2820}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#332516 0,transparent 55%),var(--bg);color:var(--text);font:15px/1.6 Poppins,system-ui,sans-serif}a{color:inherit;text-decoration:none}
+    header{display:flex;justify-content:space-between;align-items:center;padding:18px max(20px,calc((100vw - 1060px)/2));border-bottom:1px solid var(--line)}.brand{font:800 16px Syne,sans-serif;letter-spacing:.2em;color:var(--gold)}.links{display:flex;gap:18px;color:var(--muted);font-size:13px}
+    main{width:min(100% - 32px,700px);margin:48px auto 80px}.eyebrow{color:var(--gold);font-size:12px;letter-spacing:.22em;font-weight:600}h1{font:800 clamp(28px,6vw,42px)/1.2 Syne,sans-serif;margin:8px 0}.intro{color:var(--muted);margin-bottom:24px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px}.location{margin-bottom:18px;padding:16px;border:1px solid var(--line);border-radius:14px;background:#0b0a09}.location strong{display:block}.location p{margin:4px 0 8px;color:var(--muted);font-size:13px}.location a{color:var(--gold);font-size:13px}
+    form{display:grid;gap:16px}fieldset{border:0;padding:0;margin:0}legend{font-weight:600;margin-bottom:10px}.service-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.service-option{display:flex;align-items:start;gap:8px;padding:12px;border:1px solid var(--line);border-radius:11px;color:var(--muted);cursor:pointer}.service-option:has(input:checked){border-color:var(--gold);color:var(--text);background:#d4a86a12}.service-option input{accent-color:var(--gold);margin-top:4px}.service-option small{display:block;color:var(--gold);margin-top:3px}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:6px;color:var(--muted);font-size:13px}select,input,textarea{width:100%;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--text);font:inherit;padding:12px 13px}textarea{resize:vertical;min-height:82px}.submit,.secondary{border:0;border-radius:99px;padding:13px 20px;font:600 14px Poppins,system-ui,sans-serif;cursor:pointer}.submit{background:var(--gold);color:#211709}.secondary{background:transparent;border:1px solid var(--line);color:var(--text)}.actions{display:flex;gap:10px}.status{min-height:24px;margin:12px 0 0;color:var(--muted);font-size:13px}.status.error{color:#ffb5a8}.status.success{color:#b4edc1}.result{margin-top:16px;padding:16px;border:1px solid #8a653d;border-radius:14px;background:#d4a86a10}[hidden]{display:none!important}
+    @media(max-width:580px){.links a:not(.primary){display:none}.service-grid,.fields{grid-template-columns:1fr}.panel{padding:20px}}
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/">GEMBUL</a><div class="links"><a href="/account.html">Akun</a><a class="primary" href="/">Kembali</a></div></header>
+  <main>
+    <div class="eyebrow">BOOKING ONLINE</div><h1>Pesan jadwal</h1><p class="intro">Booking tersedia untuk barbershop GEMBUL Studio di Cipete. Pilih layanan, barber Cipete, tanggal, dan waktu.</p>
+    <section class="panel">
+      <div class="location">
+        <strong>Lokasi: GEMBUL Studio Cipete</strong>
+        <p>Jl. Bunga Mawar No. 22, RT. 2/RW. 2, Cipete Selatan, Cilandak, Jakarta Selatan 12410</p>
+        <a href="https://maps.app.goo.gl/1kCfFAB22MmhvFUc7" target="_blank" rel="noopener noreferrer">Lihat lokasi di Google Maps →</a>
+      </div>
+      <form id="booking-form">
+        <fieldset><legend>Pilih layanan</legend><div class="service-grid" id="services"><span class="status">Memuat layanan...</span></div></fieldset>
+        <div class="fields">
+          <label>Pilih barber Cipete<select id="barber" required><option value="">Memuat barber Cipete...</option></select></label>
+          <label>Tanggal dan waktu<input id="starts-at" type="datetime-local" required></label>
+        </div>
+        <label>Catatan <span>(opsional)</span><textarea id="notes" maxlength="500" placeholder="Gaya potongan atau permintaan khusus"></textarea></label>
+        <div class="actions"><button class="submit" id="submit" type="submit">Konfirmasi booking</button><a class="secondary" href="https://wa.me/6282142168938" target="_blank" rel="noopener">Booking via WhatsApp</a></div>
+      </form>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <div class="result" id="result" hidden></div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/supabase-config.js"></script>
+  <script>
+    (function(){
+      var config=window.GEMBUL_SUPABASE,status=document.getElementById('status'),form=document.getElementById('booking-form'),submit=document.getElementById('submit'),result=document.getElementById('result');
+      if(!config||!window.supabase){setStatus('Konfigurasi booking belum tersedia.',true);submit.disabled=true;return}
+      var client=window.supabase.createClient(config.url,config.publishableKey);
+      var minDate=new Date(Date.now()+30*60*1000);
+      document.getElementById('starts-at').min=minDate.toISOString().slice(0,16);
+
+      function setStatus(message,error,success){status.textContent=message||'';status.classList.toggle('error',!!error);status.classList.toggle('success',!!success)}
+      function idr(value){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(value)}
+      function escapeHtml(value){var span=document.createElement('span');span.textContent=String(value||'');return span.innerHTML}
+
+      async function requireSession(){var sessionResult=await client.auth.getSession();if(sessionResult.error)throw sessionResult.error;if(!sessionResult.data.session){setStatus('Silakan masuk atau daftar terlebih dahulu.',true);setTimeout(function(){location.href='/account.html'},900);return null}return sessionResult.data.session}
+
+      async function loadCatalog(){
+        var servicesResult=await client.from('services').select('id,name,price,duration_minutes').eq('is_active',true).order('name');
+        if(servicesResult.error)throw servicesResult.error;
+        var container=document.getElementById('services');container.replaceChildren();
+        servicesResult.data.forEach(function(service){var label=document.createElement('label');label.className='service-option';var input=document.createElement('input');input.type='checkbox';input.name='service';input.value=service.id;var text=document.createElement('span');text.textContent=service.name;var meta=document.createElement('small');meta.textContent=idr(service.price)+' • '+service.duration_minutes+' menit';text.append(meta);label.append(input,text);container.append(label)});
+
+        var barberResult=await client.from('active_barber_catalog').select('id,display_name').order('display_name');
+        if(barberResult.error)throw barberResult.error;
+        var barber=document.getElementById('barber');barber.replaceChildren();var placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Pilih barber';barber.append(placeholder);
+        barberResult.data.forEach(function(item){var option=document.createElement('option');option.value=item.id;option.textContent=item.display_name;barber.append(option)});
+        if(!barberResult.data.length){var none=document.createElement('option');none.value='';none.textContent='Belum ada barber Cipete aktif';barber.append(none);submit.disabled=true;setStatus('Belum ada barber yang terdaftar untuk lokasi Cipete. Silakan hubungi kami melalui WhatsApp.',true)}
+      }
+
+      form.addEventListener('submit',async function(event){
+        event.preventDefault();
+        var session;try{session=await requireSession()}catch(error){setStatus(error.message||'Status login tidak dapat diperiksa.',true);return}if(!session)return;
+        var selected=[].slice.call(form.querySelectorAll('input[name="service"]:checked')).map(function(input){return input.value});
+        if(!selected.length){setStatus('Pilih minimal satu layanan.',true);return}
+        var barberId=document.getElementById('barber').value;if(!barberId){setStatus('Pilih barber.',true);return}
+        var startsAt=document.getElementById('starts-at').value;if(!startsAt){setStatus('Pilih tanggal dan waktu.',true);return}
+        submit.disabled=true;setStatus('Memproses booking Cipete dan antrean...');
+        try{
+          var response=await client.rpc('create_customer_booking',{p_service_ids:selected,p_barber_id:barberId,p_starts_at:new Date(startsAt).toISOString(),p_notes:document.getElementById('notes').value.trim()});
+          if(response.error)throw response.error;
+          var data=response.data;var dateLabel=new Date(data.starts_at).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
+          result.hidden=false;result.innerHTML='<strong>Booking berhasil dikonfirmasi.</strong><br>Nomor antrean: <strong>'+escapeHtml(data.queue_number)+'</strong><br>Jadwal: '+escapeHtml(dateLabel);
+          setStatus('Booking Cipete dan nomor antrean sudah tersimpan.',false,true);form.reset();
+        }catch(error){setStatus(error.message||'Booking gagal diproses.',true)}finally{submit.disabled=false}
+      });
+
+      loadCatalog().catch(function(error){setStatus(error.message||'Katalog tidak dapat dimuat.',true)});
+      requireSession().catch(function(error){setStatus(error.message||'Status login tidak dapat diperiksa.',true)});
+    })();
+  </script>
+  <script src="/customer-nav.js"></script>
+</body>
+</html>

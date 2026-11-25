@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0a09">
+  <title>Kasir POS | GEMBUL Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0b0a09;--panel:#1a1713;--gold:#d4a86a;--text:#f5efe6;--muted:#a39a8c;--line:#342e26;--danger:#ffb5a8}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Poppins,system-ui,sans-serif}
+    a{color:var(--gold);text-decoration:none}header{display:flex;justify-content:space-between;align-items:center;padding:16px max(18px,calc((100vw - 1120px)/2));border-bottom:1px solid var(--line)}
+    .brand,h1,h2{font-family:Syne,sans-serif}.brand{font-weight:800;letter-spacing:.18em}header nav{display:flex;gap:14px;align-items:center;font-size:12px}
+    main{width:min(1120px,calc(100% - 28px));margin:28px auto 70px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:.18em;font-weight:600}h1{font-size:clamp(28px,5vw,38px);margin:5px 0}
+    .status{min-height:22px;color:var(--muted);font-size:13px}.error{color:var(--danger)!important}.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(290px,.85fr);gap:16px}
+    .stack{display:grid;gap:14px;align-content:start}.panel{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}h2{font-size:17px;margin:0 0 12px}
+    label{display:grid;gap:5px;color:var(--muted);font-size:12px}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text)}textarea{min-height:74px;resize:vertical}
+    .row{display:flex;gap:9px;align-items:end}.row>*{flex:1}.button{padding:10px 14px;border:1px solid #8a653d;border-radius:9px;background:#21190f;color:var(--gold);font-weight:600;cursor:pointer}.button.primary{background:var(--gold);color:#17120c}.button:disabled{opacity:.55;cursor:wait}
+    .catalog{display:grid;gap:8px}.choice{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#100e0c}.choice input[type=checkbox]{width:17px;height:17px;accent-color:var(--gold)}.choice strong{font-size:13px}.choice small{display:block;color:var(--muted);font-size:11px}.quantity{width:76px;text-align:center;padding:7px}.summary{display:grid;gap:8px;margin:12px 0}.summary-row{display:flex;justify-content:space-between;gap:12px;color:var(--muted)}.summary-row.total{padding-top:10px;border-top:1px solid var(--line);color:var(--text);font-weight:700;font-size:18px}
+    .check{display:flex;grid-template-columns:none;align-items:center;gap:9px}.check input{width:17px;height:17px;accent-color:var(--gold)}.hint{color:var(--muted);font-size:11px}.customer-results{display:grid;gap:6px;margin-top:8px}.customer-result{padding:9px 10px;text-align:left;border:1px solid var(--line);border-radius:8px;background:#100e0c;color:var(--text);cursor:pointer}
+    .receipt{width:min(100%,520px);margin:18px auto 0;padding:0;overflow:hidden;background:#fff;color:#211b14;border:1px solid #e8dfd3;border-radius:14px;box-shadow:0 12px 36px #0005;font:13px/1.5 Poppins,system-ui,sans-serif}
+    .receipt-head{display:grid;justify-items:center;padding:20px 22px 16px;background:#100e0c;color:#f8f2e9;text-align:center}
+    .receipt-logo{position:relative;width:150px;height:88px;margin:-8px auto 6px;overflow:hidden;background:#0b0a09}
+    .receipt-logo img{position:absolute;top:50%;left:50%;width:330px;height:330px;max-width:none;transform:translate(-50%,-50%)}
+    .receipt-brand{margin:0;color:#f8f2e9;font:800 20px/1.2 Syne,sans-serif;letter-spacing:.16em}
+    .receipt-tagline{margin:5px 0 0;color:#d4a86a;font-size:10px;letter-spacing:.25em;text-transform:uppercase}
+    .receipt-copy{margin:7px 0 0;color:#d8d0c4;font-size:11px}
+    .receipt-body{padding:18px 22px 20px}
+    .receipt-status{display:inline-block;margin-bottom:12px;padding:4px 10px;border:1px solid #557b50;border-radius:99px;color:#315b2d;font-size:10px;font-weight:700;letter-spacing:.1em}
+    .receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;padding-bottom:14px;border-bottom:1px dashed #d8d0c4}
+    .receipt-meta-item{min-width:0}.receipt-meta-label,.receipt-label{display:block;color:#80766a;font-size:10px;letter-spacing:.07em;text-transform:uppercase}
+    .receipt-meta-value{display:block;margin-top:2px;color:#211b14;font-weight:600;overflow-wrap:anywhere}
+    .receipt-items{width:100%;margin:13px 0 14px;border-collapse:collapse}
+    .receipt-items th{padding:0 0 7px;border-bottom:1px solid #e8dfd3;color:#80766a;font-size:10px;font-weight:600;letter-spacing:.06em;text-align:left;text-transform:uppercase}
+    .receipt-items th:last-child,.receipt-items td:last-child{text-align:right}
+    .receipt-items td{padding:8px 0;border-bottom:1px solid #f0ebe4;vertical-align:top}
+    .receipt-item-name{color:#211b14;font-weight:600}.receipt-item-detail{display:block;margin-top:1px;color:#80766a;font-size:10px}
+    .receipt-summary{display:grid;gap:6px}.receipt-summary-row{display:flex;justify-content:space-between;gap:14px;color:#665d52}
+    .receipt-summary-row strong{color:#211b14;font-weight:600;text-align:right}
+    .receipt-summary-row.total{margin-top:5px;padding-top:10px;border-top:1px solid #d8d0c4;color:#211b14;font-size:17px;font-weight:700}
+    .receipt-summary-row.total strong{font:800 20px Syne,sans-serif}
+    .receipt-footer{margin:16px -22px -20px;padding:13px 22px;background:#f7f3ed;text-align:center}
+    .receipt-footer strong{display:block;color:#211b14;font:700 13px Syne,sans-serif}
+    .receipt-footer span{display:block;margin-top:3px;color:#80766a;font-size:10px}
+    .receipt-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    [hidden]{display:none!important}.pending{padding:12px;border:1px solid #8a653d;border-radius:10px;color:var(--gold);font-size:12px}
+    @media(max-width:760px){.layout{grid-template-columns:1fr}header{align-items:flex-start}header nav{flex-wrap:wrap;justify-content:flex-end}.row.stack-mobile{align-items:stretch;flex-direction:column}}
+    @media(max-width:480px){.receipt-body{padding:16px}.receipt-footer{margin:16px -16px -16px;padding:12px 16px}.receipt-head{padding-inline:16px}}
+    @media print{
+      @page{size:auto;margin:5mm}
+      html,body{width:100%;min-height:0;margin:0!important;background:#fff!important;color:#111!important}
+      body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      body *{visibility:hidden!important}
+      #receipt,#receipt *{visibility:visible!important}
+      .no-print,header,main>h1,main>.eyebrow,main>.status,.layout,#pending{display:none!important}
+      main{width:100%;margin:0}
+      #receipt{position:static;display:block!important;width:80mm;max-width:100%;margin:0 auto;border:0;border-radius:0;box-shadow:none;break-inside:avoid}
+      .receipt-head{padding-top:12px}
+    }
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/">GEMBUL</a><nav><a href="/admin.html">Dashboard</a><a href="/customers.html">Pelanggan</a><a href="/inventory.html">Inventori</a><button class="button" id="logout" type="button">Keluar</button></nav></header>
+  <main>
+    <div class="eyebrow">TRANSAKSI STAF · HARGA DAN STOK DIVALIDASI DI SERVER</div>
+    <h1>Kasir POS</h1>
+    <p id="status" class="status" role="status" aria-live="polite">Memeriksa akses staf...</p>
+    <div class="pending" id="pending" hidden></div>
+    <div class="layout" id="pos" hidden>
+      <div class="stack">
+        <section class="panel">
+          <h2>Pelanggan &amp; layanan</h2>
+          <div class="row stack-mobile">
+            <label>Cari pelanggan<input id="customer-search" type="search" placeholder="Nama, telepon, atau kode member"></label>
+            <button class="button" id="search-customer" type="button">Cari</button>
+          </div>
+          <div class="customer-results" id="customer-results"></div>
+          <p class="hint" id="selected-customer">Transaksi tanpa profil pelanggan tetap dapat diproses.</p>
+          <details>
+            <summary>Daftarkan pelanggan baru</summary>
+            <form id="new-customer" class="stack" style="margin-top:10px">
+              <label>Nama lengkap<input name="full_name" required minlength="2" maxlength="100"></label>
+              <div class="row"><label>WhatsApp<input name="phone" maxlength="30"></label><label>Email<input name="email" type="email" maxlength="254"></label></div>
+              <label>Tanggal lahir (opsional)<input name="birth_date" type="date"></label>
+              <label class="check"><input name="marketing_opt_in" type="checkbox">Izinkan menerima promo melalui WhatsApp</label>
+              <button class="button" type="submit">Daftarkan pelanggan</button>
+            </form>
+          </details>
+          <div class="row" style="margin-top:12px">
+            <label>Barber (opsional)<select id="barber"><option value="">Tanpa barber</option></select></label>
+          </div>
+          <h2 style="margin-top:18px">Layanan</h2>
+          <div class="catalog" id="services"></div>
+        </section>
+        <section class="panel"><h2>Produk</h2><div class="catalog" id="products"></div></section>
+      </div>
+      <aside class="stack">
+        <section class="panel">
+          <h2>Pembayaran</h2>
+          <div class="row">
+            <label>Diskon manual (Rp)<input id="discount" type="number" min="0" step="1" value="0"></label>
+            <label>Kode voucher<input id="voucher" maxlength="32" autocomplete="off"></label>
+          </div>
+          <p class="hint">Admin staf maksimal diskon manual 15%; voucher dan harga akhir selalu diperiksa server.</p>
+          <label class="check"><input id="redeem-reward" type="checkbox">Tukar reward 5 stamp (potong rambut dewasa gratis)</label>
+          <div class="summary">
+            <div class="summary-row"><span>Subtotal perkiraan</span><strong id="subtotal">Rp0</strong></div>
+            <div class="summary-row"><span>Diskon manual</span><strong id="discount-value">Rp0</strong></div>
+            <div class="summary-row total"><span>Total perkiraan</span><strong id="total">Rp0</strong></div>
+            <div class="hint" id="voucher-hint">Diskon voucher akan dihitung server saat transaksi disimpan.</div>
+          </div>
+          <label>Metode pembayaran<select id="payment-method"><option value="cash">Tunai</option><option value="qris">QRIS</option><option value="bank_transfer">Transfer bank</option></select></label>
+          <label style="margin-top:10px">Uang diterima<input id="tendered" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
+          <div class="summary-row" style="margin-top:10px"><span>Kembalian perkiraan</span><strong id="change">Rp0</strong></div>
+          <button class="button primary" id="checkout" type="button" style="width:100%;margin-top:14px">Simpan &amp; selesaikan transaksi</button>
+          <button class="button" id="retry" type="button" hidden style="width:100%;margin-top:8px">Coba ulang transaksi yang belum terkonfirmasi</button>
+        </section>
+      </aside>
+    </div>
+    <section class="receipt" id="receipt" hidden aria-live="polite"></section>
+    <div class="receipt-actions no-print" id="receipt-actions" hidden style="margin-top:10px">
+      <button class="button" id="print" type="button">Cetak nota</button>
+      <a class="button" id="whatsapp" target="_blank" rel="noopener noreferrer">Buka WhatsApp untuk berbagi nota</a>
+      <p class="hint">WhatsApp hanya dibuka dengan teks siap tinjau. Pesan tidak dikirim otomatis.</p>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/supabase-config.js"></script>
+  <script src="/admin-tools.js?v=2"></script>
+  <script>
+    (async function(){
+      const $=function(id){return document.getElementById(id)};
+      const status=$('status'), checkout=$('checkout'), pending=$('pending'), retry=$('retry');
+      let context, catalog, selectedCustomer=null;
+      const money=window.GembulStaff.rupiah;
+      function option(select,label,value){const item=document.createElement('option');item.value=value;item.textContent=label;select.append(item)}
+      function renderCatalog(){
+        const services=$('services'),products=$('products');services.replaceChildren();products.replaceChildren();
+        catalog.services.forEach(function(service){
+          const label=document.createElement('label');label.className='choice';
+          const input=document.createElement('input');input.type='checkbox';input.dataset.service=service.id;input.dataset.price=service.price;
+          const text=document.createElement('span');const name=document.createElement('strong');name.textContent=service.name;
+          const detail=document.createElement('small');detail.textContent=money(service.price)+(service.earns_loyalty_stamp?' · memperoleh stamp':'');text.append(name,detail);
+          label.append(input,text);services.append(label);
+        });
+        catalog.products.forEach(function(product){
+          const label=document.createElement('div');label.className='choice';
+          const input=document.createElement('input');input.type='checkbox';input.dataset.product=product.id;input.dataset.price=product.price;input.dataset.stock=product.stock;input.disabled=Number(product.stock)<1;input.setAttribute('aria-label',Number(product.stock)<1?'Stok habis: '+product.name:'Pilih '+product.name);
+          const text=document.createElement('span');const name=document.createElement('strong');name.textContent=product.name;
+          const detail=document.createElement('small');detail.textContent=money(product.price)+' · '+(Number(product.stock)<1?'stok habis':'stok '+product.stock);text.append(name,detail);
+          const quantity=document.createElement('input');quantity.className='quantity';quantity.type='number';quantity.min='1';quantity.max=String(product.stock);quantity.value='1';quantity.disabled=true;quantity.setAttribute('aria-label','Jumlah '+product.name);
+          input.addEventListener('change',function(){quantity.disabled=!input.checked;updateTotals()});quantity.addEventListener('input',updateTotals);
+          label.append(input,text,quantity);products.append(label);
+        });
+        catalog.barbers.forEach(function(barber){option($('barber'),barber.name,barber.id)});
+      }
+      function selectedServices(){return Array.from(document.querySelectorAll('[data-service]:checked'))}
+      function selectedProducts(){return Array.from(document.querySelectorAll('[data-product]:checked'))}
+      function orderSubtotal(){
+        const services=selectedServices(),products=selectedProducts();
+        let total=services.reduce(function(sum,input){return sum+Number(input.dataset.price)},0)+products.reduce(function(sum,input){const row=input.closest('.choice');return sum+Number(input.dataset.price)*Math.max(1,Number(row.querySelector('.quantity').value)||1)},0);
+        const reward=(catalog.rewards||[]).find(function(item){return item.required_stamps===5});
+        if($('redeem-reward').checked&&reward){const freeService=services.find(function(input){return input.dataset.service===reward.service_id});if(freeService)total-=Number(freeService.dataset.price)}
+        return total;
+      }
+      function updateTotals(){
+        const subtotal=orderSubtotal(),discount=Math.min(Math.max(0,Number($('discount').value)||0),subtotal),total=subtotal-discount;
+        $('subtotal').textContent=money(subtotal);$('discount-value').textContent=money(discount);$('total').textContent=money(total);
+        const method=$('payment-method').value;
+        if(method!=='cash')$('tendered').value=String(total);
+        const tender=Math.max(0,Number($('tendered').value)||0);
+        $('change').textContent=money(method==='cash'?Math.max(0,tender-total):0);
+      }
+      function buildPayload(){
+        const subtotal=orderSubtotal();
+        return {
+          p_customer_id:selectedCustomer?selectedCustomer.id:null,
+          p_barber_id:$('barber').value||null,
+          p_service_ids:selectedServices().map(function(item){return item.dataset.service}),
+          p_product_items:selectedProducts().map(function(item){return {product_id:item.dataset.product,quantity:Math.max(1,Number(item.closest('.choice').querySelector('.quantity').value)||1)}}),
+          p_discount:Math.min(Math.max(0,Number($('discount').value)||0),subtotal),
+          p_voucher_code:$('voucher').value.trim()||null,
+          p_redeem_reward:$('redeem-reward').checked,
+          p_payment_method:$('payment-method').value,
+          p_amount_tendered:Math.max(0,Number($('tendered').value)||0)
+        };
+      }
+      function showReceipt(data,payload){
+        const receipt=$('receipt');receipt.replaceChildren();
+        const element=function(tag,className,text){
+          const node=document.createElement(tag);
+          if(className)node.className=className;
+          if(text!==undefined)node.textContent=text;
+          return node;
+        };
+        const head=element('div','receipt-head');
+        const logoFrame=element('div','receipt-logo');
+        const logo=document.createElement('img');logo.src='/icon-512.png';logo.alt='Logo GEMBUL Studio';logo.width=330;logo.height=330;
+        const brand=element('h2','receipt-brand','GEMBUL STUDIO');
+        const tagline=element('p','receipt-tagline','Grooming · Seni dalam Setiap Potongan');
+        const businessLine=element('p','receipt-copy','Bukti pembayaran resmi');
+        logoFrame.append(logo);head.append(logoFrame,brand,tagline,businessLine);
+
+        const body=element('div','receipt-body');
+        body.append(element('span','receipt-status','LUNAS'));
+        const meta=element('div','receipt-meta');
+        const addMeta=function(label,value){
+          const item=element('div','receipt-meta-item');
+          item.append(element('span','receipt-meta-label',label),element('span','receipt-meta-value',value));
+          meta.append(item);
+        };
+        const dateText=new Intl.DateTimeFormat('id-ID',{dateStyle:'long',timeStyle:'short',timeZone:'Asia/Jakarta'}).format(data.paid_at?new Date(data.paid_at):new Date())+' WIB';
+        const paymentLabels={cash:'Tunai',qris:'QRIS',bank_transfer:'Transfer bank'};
+        addMeta('Nomor transaksi',data.receipt_number||data.transaction_number);
+        addMeta('Tanggal',dateText);
+        addMeta('Pelanggan',selectedCustomer?selectedCustomer.full_name:'Pelanggan umum');
+        addMeta('Pembayaran',paymentLabels[payload.p_payment_method]||payload.p_payment_method);
+        if(payload.p_voucher_code)addMeta('Voucher',payload.p_voucher_code.toUpperCase());
+        body.append(meta);
+
+        const table=element('table','receipt-items');
+        const thead=element('thead'),headerRow=element('tr');
+        ['Rincian','Qty','Jumlah'].forEach(function(label){headerRow.append(element('th','',label))});
+        thead.append(headerRow);
+        const tbody=element('tbody');
+        const receiptLines=[];
+        payload.p_service_ids.forEach(function(id){
+          const service=catalog.services.find(function(item){return item.id===id});
+          const isReward=payload.p_redeem_reward&&(catalog.rewards||[]).some(function(reward){return reward.service_id===id});
+          receiptLines.push({name:service?service.name:'Layanan',detail:isReward?'Reward member':'Layanan',quantity:1,unitPrice:isReward?0:Number(service?service.price:0)});
+        });
+        payload.p_product_items.forEach(function(item){
+          const product=catalog.products.find(function(value){return value.id===item.product_id});
+          receiptLines.push({name:product?product.name:'Produk',detail:'Produk',quantity:item.quantity,unitPrice:Number(product?product.price:0)});
+        });
+        receiptLines.forEach(function(line){
+          const row=element('tr');
+          const description=element('td');
+          description.append(element('span','receipt-item-name',line.name),element('span','receipt-item-detail',line.detail+' · '+money(line.unitPrice)+' / item'));
+          row.append(description,element('td','',String(line.quantity)),element('td','',money(line.unitPrice*line.quantity)));
+          tbody.append(row);
+        });
+        table.append(thead,tbody);body.append(table);
+
+        const summary=element('div','receipt-summary');
+        const summaryRow=function(label,value,isTotal){
+          const row=element('div','receipt-summary-row'+(isTotal?' total':''));
+          row.append(element('span','',label),element('strong','',value));
+          return row;
+        };
+        summary.append(
+          summaryRow('Subtotal',money(data.subtotal),false),
+          summaryRow('Diskon',money(data.discount),false),
+          summaryRow('Total pembayaran',money(data.total),true)
+        );
+        if(payload.p_payment_method==='cash'){
+          summary.append(
+            summaryRow('Tunai diterima',money(data.amount_tendered),false),
+            summaryRow('Kembalian',money(data.change||0),false)
+          );
+        }
+        body.append(summary);
+        const footer=element('div','receipt-footer');
+        footer.append(
+          element('strong','','Terima kasih telah mempercayai GEMBUL Studio.'),
+          element('span','','Simpan nota ini sebagai bukti pembayaran.'),
+          element('span','','Harga dalam Rupiah · Barang dan layanan telah diterima.')
+        );
+        body.append(footer);receipt.append(head,body);receipt.hidden=false;$('receipt-actions').hidden=false;
+
+        const shareLines=['NOTA PEMBAYARAN · GEMBUL STUDIO',data.receipt_number||data.transaction_number,dateText];
+        receiptLines.forEach(function(line){shareLines.push(line.name+' × '+line.quantity+' — '+money(line.unitPrice*line.quantity))});
+        shareLines.push('Subtotal '+money(data.subtotal),'Diskon '+money(data.discount),'TOTAL '+money(data.total),'Pembayaran '+(paymentLabels[payload.p_payment_method]||payload.p_payment_method));
+        if(payload.p_payment_method==='cash')shareLines.push('Kembalian '+money(data.change||0));
+        shareLines.push('Terima kasih telah berkunjung.');
+        $('whatsapp').href='https://wa.me/'+(selectedCustomer&&selectedCustomer.phone?selectedCustomer.phone.replace(/\D/g,'').replace(/^0/,'62'):'')+'?text='+encodeURIComponent(shareLines.join('\n'));
+      }
+      async function submitPayload(payload,key){
+        checkout.disabled=true;retry.disabled=true;window.GembulStaff.setStatus(status,'Menyimpan transaksi secara aman...',false);
+        try{
+          const data=await window.GembulStaff.call(context.client,'create_pos_transaction',Object.assign({},payload,{p_idempotency_key:key}));
+          sessionStorage.removeItem('gembul-pos-pending');
+          pending.hidden=true;retry.hidden=true;showReceipt(data,payload);
+          window.GembulStaff.setStatus(status,(data.replayed?'Transaksi yang sama dikonfirmasi ulang: ':'Transaksi berhasil: ')+data.transaction_number,false);
+          checkout.disabled=false;checkout.textContent='Transaksi berikutnya';
+          checkout.onclick=function(){window.location.reload()};
+        }catch(error){
+          checkout.disabled=true;retry.disabled=false;retry.hidden=false;pending.hidden=false;
+          pending.textContent='Hasil transaksi belum terkonfirmasi. Jangan buat transaksi baru; tekan tombol coba ulang untuk memeriksa transaksi dengan kunci aman yang sama.';
+          window.GembulStaff.setStatus(status,error.message||'Transaksi gagal diproses.',true);
+        }
+      }
+      $('search-customer').addEventListener('click',async function(){
+        const term=$('customer-search').value.trim(),target=$('customer-results');target.replaceChildren();
+        if(!term){window.GembulStaff.setStatus(status,'Masukkan nama, nomor WhatsApp, atau kode member.',true);return}
+        try{
+          const rows=await window.GembulStaff.call(context.client,'admin_search_customers',{p_search:term,p_segment:'all',p_limit:10,p_offset:0});
+          rows.forEach(function(customer){const button=document.createElement('button');button.type='button';button.className='customer-result';button.textContent=customer.full_name+' · '+(customer.phone||customer.member_code);button.addEventListener('click',function(){selectedCustomer=customer;$('selected-customer').textContent='Pelanggan dipilih: '+customer.full_name+' · '+(customer.phone||customer.member_code);target.replaceChildren()});target.append(button)});
+          if(!rows.length)target.textContent='Pelanggan tidak ditemukan.';
+        }catch(error){window.GembulStaff.setStatus(status,error.message||'Pelanggan gagal dicari.',true)}
+      });
+      $('new-customer').addEventListener('submit',async function(event){
+        event.preventDefault();const form=event.currentTarget,data=new FormData(form);
+        try{
+          const rows=await window.GembulStaff.call(context.client,'admin_create_customer',{p_full_name:data.get('full_name'),p_phone:data.get('phone')||null,p_email:data.get('email')||null,p_birth_date:data.get('birth_date')||null,p_marketing_opt_in:data.get('marketing_opt_in')==='on'});
+          selectedCustomer=rows[0];$('selected-customer').textContent='Pelanggan dipilih: '+selectedCustomer.full_name+' · '+(selectedCustomer.phone||selectedCustomer.member_code);form.reset();window.GembulStaff.setStatus(status,'Pelanggan baru berhasil dibuat.',false);
+        }catch(error){window.GembulStaff.setStatus(status,error.message||'Pelanggan gagal dibuat.',true)}
+      });
+      $('logout').addEventListener('click',async function(){const result=await context.client.auth.signOut();if(result.error)window.GembulStaff.setStatus(status,result.error.message,true);else window.location.replace('/account.html')});
+      $('print').addEventListener('click',function(){window.print()});
+      ['discount','voucher','tendered','payment-method','redeem-reward'].forEach(function(id){$(id).addEventListener('input',updateTotals);$(id).addEventListener('change',updateTotals)});
+      $('services').addEventListener('change',updateTotals);
+      checkout.addEventListener('click',function(){
+        const payload=buildPayload();
+        const key=window.crypto&&window.crypto.randomUUID?window.crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(16).slice(2);
+        const saved={key:key,payload:payload,customer:selectedCustomer};sessionStorage.setItem('gembul-pos-pending',JSON.stringify(saved));submitPayload(payload,key);
+      });
+      retry.addEventListener('click',function(){const saved=JSON.parse(sessionStorage.getItem('gembul-pos-pending')||'null');if(saved&&saved.key&&saved.payload){selectedCustomer=saved.customer||null;submitPayload(saved.payload,saved.key)}});
+      try{
+        context=await window.GembulStaff.requireStaff(false);if(!context)return;
+        catalog=await window.GembulStaff.call(context.client,'pos_catalog');
+        renderCatalog();$('pos').hidden=false;updateTotals();
+        const saved=JSON.parse(sessionStorage.getItem('gembul-pos-pending')||'null');
+        if(saved&&saved.key&&saved.payload){selectedCustomer=saved.customer||null;checkout.disabled=true;retry.hidden=false;pending.hidden=false;pending.textContent='Ada transaksi sebelumnya yang belum terkonfirmasi. Ulangi permintaan lama sebelum memulai transaksi baru.'}
+        window.GembulStaff.setStatus(status,'Masuk sebagai '+(context.role==='owner'?'Super Admin':'Admin Staf')+'. Harga dan stok diambil dari server.',false);
+      }catch(error){window.GembulStaff.setStatus(status,error.message||'POS gagal dibuka.',true)}
+    })();
+  </script>
+</body>
+</html>

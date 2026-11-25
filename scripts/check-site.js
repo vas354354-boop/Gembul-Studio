@@ -27,6 +27,9 @@ const hoursMigration = fs.readFileSync(path.join(root, 'supabase/migrations/2026
 const checks = {
   manifestLink: html.includes('/manifest.webmanifest'),
   serviceWorkerRegistration: html.includes("navigator.serviceWorker.register('/sw.js')"),
+  websiteInstallSection: html.includes('<section id="install"') && html.includes('Tambahkan ke Layar Utama'),
+  websiteInstallPrompt: html.includes('id="pwa-install"') && html.includes("addEventListener('beforeinstallprompt'") && html.includes("addEventListener('appinstalled'"),
+  websiteInstallNavigation: html.includes('href="#install">Unduh Aplikasi</a>'),
   viewport: html.includes('name="viewport"'),
   existingWhatsAppBooking: html.includes('6282142168938'),
   liveServiceCatalog: html.includes("rest/v1/services?select=name,price,duration_minutes"),
